@@ -37,7 +37,7 @@ describe("GET /api/facility/[ccn]", () => {
   it("returns a normalized facility profile for a matching CCN", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: vi.fn().mockResolvedValue([cmsRow]),
+      json: vi.fn().mockResolvedValue({ results: [cmsRow] }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -61,16 +61,17 @@ describe("GET /api/facility/[ccn]", () => {
     });
 
     const requestUrl = new URL(fetchMock.mock.calls[0][0].toString());
-    expect(requestUrl.pathname).toBe("/resource/4pq5-n9py.json");
-    expect(requestUrl.searchParams.get("cms_certification_number_ccn")).toBe("686123");
-    expect(requestUrl.searchParams.get("$limit")).toBe("1");
-    expect(requestUrl.searchParams.get("$select")).toContain("provider_name");
+    expect(requestUrl.pathname).toBe("/provider-data/api/1/datastore/query/4pq5-n9py/0");
+    expect(requestUrl.searchParams.get("conditions[0][property]")).toBe("cms_certification_number_ccn");
+    expect(requestUrl.searchParams.get("conditions[0][value]")).toBe("686123");
+    expect(requestUrl.searchParams.get("conditions[0][operator]")).toBe("=");
+    expect(requestUrl.searchParams.get("size")).toBe("1");
   });
 
   it("trims CCN route params before lookup", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
-      json: vi.fn().mockResolvedValue([cmsRow]),
+      json: vi.fn().mockResolvedValue({ results: [cmsRow] }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
@@ -78,7 +79,7 @@ describe("GET /api/facility/[ccn]", () => {
 
     expect(response.status).toBe(200);
     const requestUrl = new URL(fetchMock.mock.calls[0][0].toString());
-    expect(requestUrl.searchParams.get("cms_certification_number_ccn")).toBe("686123");
+    expect(requestUrl.searchParams.get("conditions[0][value]")).toBe("686123");
   });
 
   it("returns 400 for an invalid CCN", async () => {
@@ -103,7 +104,7 @@ describe("GET /api/facility/[ccn]", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue([]),
+        json: vi.fn().mockResolvedValue({ results: [] }),
       }),
     );
 
@@ -162,7 +163,7 @@ describe("GET /api/facility/[ccn]", () => {
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: vi.fn().mockResolvedValue([{ cms_certification_number_ccn: "686123" }]),
+        json: vi.fn().mockResolvedValue({ results: [{ cms_certification_number_ccn: "686123" }] }),
       }),
     );
 
@@ -174,6 +175,46 @@ describe("GET /api/facility/[ccn]", () => {
       error: {
         code: "FACILITY_SCHEMA_ERROR",
         message: "CMS provider data could not be normalized.",
+      },
+    });
+  });
+
+  it("returns sparse but valid normalized data when CMS address, beds, and ratings are missing", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [
+            {
+              cms_certification_number_ccn: "123456",
+              provider_name: "Sparse Facility",
+            },
+          ],
+        }),
+      }),
+    );
+
+    const response = await GET(new Request("http://localhost/api/facility/123456"), routeContext("123456"));
+    const json = await readJson(response);
+
+    expect(response.status).toBe(200);
+    expect(json).toMatchObject({
+      ccn: "123456",
+      providerName: "Sparse Facility",
+      address: {
+        street: "",
+        city: "",
+        state: "",
+        zip: "",
+        full: "",
+      },
+      certifiedBeds: null,
+      ratings: {
+        overall: null,
+        healthInspection: null,
+        staffing: null,
+        qualityOfResidentCare: null,
       },
     });
   });

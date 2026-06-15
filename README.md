@@ -33,10 +33,141 @@ npm run build
 - [x] Project foundation and App Router shell
 - [x] Server-side CMS provider lookup by CCN
 - [x] Normalized CMS facility type and mapper
-- [ ] Manual operational input form
-- [ ] Facility assessment snapshot preview
-- [ ] PDF export with `@react-pdf/renderer`
-- [ ] Error, loading, and empty states for the full workflow
+- [x] CCN lookup UI and facility preview
+- [x] Manual operational input form
+- [x] Facility assessment snapshot preview
+- [x] PDF export with `@react-pdf/renderer`
+- [x] Error, loading, and empty states for the full workflow
+
+## Facility Lookup UI
+
+The landing page includes a CCN lookup form backed by `GET /api/facility/[ccn]`.
+
+The UI supports:
+
+- Client-side CCN validation before an API request
+- Disabled search button and loading state while a request is in flight
+- Clean no-result messaging for unknown CCNs
+- Retryable messaging for CMS/API failures
+- A normalized facility preview with facility name, CCN, location, certified beds, CMS average residents per day, ratings, and a Medicare source link
+
+`averageResidentsPerDay` is displayed only as a CMS helper value. It is not treated as Current Census; Current Census will be entered manually in a later MVP step.
+
+To test locally:
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:3000`, enter `686123`, and submit the lookup form.
+
+## Testing
+
+Run the full local quality gate before deployment:
+
+```bash
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+```
+
+The automated suite covers:
+
+- happy-path lookup and report rendering with mocked CCN `686123`
+- empty and invalid CCN validation
+- no CMS result
+- CMS timeout and network failures
+- missing CMS ratings, address fields, and certified beds
+- manual input validation
+- facility name override behavior
+- canonical report model assertions
+- PDF readiness, disabled/enabled behavior, filename generation, generation failure, and Medicare URL presence
+
+## Manual Operational Inputs
+
+After a successful facility lookup, the app renders manual fields for operational report details:
+
+| Field | Required | Notes |
+| --- | --- | --- |
+| Facility Name Override | No | Optional report body display name |
+| EMR | Yes | Free-text value such as `PCC` |
+| Current Census | Yes | Manual numeric value |
+| Type of Patient | Yes | Free-text patient mix |
+| Previous Coverage from Medelite | Yes | `Yes` or `No` |
+| Previous Provider Performance from Medelite | Yes | Free-text performance context |
+| Medical Coverage | Yes | Free-text coverage list |
+
+Current Census must remain user-entered and editable. CMS `averageResidentsPerDay` may be used only through the helper prefill button, and the user can still change the value after prefilling.
+
+Facility name display for the report body uses this merge rule:
+
+```ts
+const cmsName = facility.legalBusinessName || facility.providerName;
+const reportFacilityName = manual.facilityNameOverride?.trim() || cmsName;
+```
+
+The optional override changes only the report body preview field `Name of Facility`. It must never replace the static brand text `INFINITE — Managed by MEDELITE`.
+
+## Canonical Report Model
+
+All report surfaces should use one canonical model built by `buildFacilityAssessmentReport` in `src/lib/report`.
+
+The builder accepts the normalized CMS `FacilityProfile` plus manual operational inputs, then returns a `FacilityAssessmentReport` object with:
+
+- static report branding
+- report body facility identity
+- operational fields
+- string-formatted ratings
+- string-formatted census capacity
+- dynamic Medicare URL built from CCN and state
+
+Preview, PDF, and future DOCX exports should render from `FacilityAssessmentReport` instead of duplicating CMS/manual mapping logic in each surface. Missing text values render as `N/A`; missing numeric CMS values and ratings render as `—`.
+
+The branding fields are literal static values:
+
+```ts
+branding: {
+  platform: "INFINITE — Managed by MEDELITE";
+  title: "FACILITY ASSESSMENT SNAPSHOT";
+}
+```
+
+## MVP PDF Export
+
+PDF export uses `@react-pdf/renderer` and renders from the canonical `FacilityAssessmentReport` model. The UI enables `Download PDF` only after required MVP report fields are present, including manual operational inputs.
+
+The MVP PDF includes:
+
+- `INFINITE — Managed by MEDELITE`
+- `FACILITY ASSESSMENT SNAPSHOT`
+- dynamic state
+- Name of Facility
+- Location
+- EMR
+- Census Capacity
+- Current Census
+- Type of Patient
+- Previous Coverage from Medelite
+- Previous Provider Performance from Medelite
+- Medical Coverage
+- Overall Star Rating
+- Health Inspection
+- Staffing
+- Quality of Resident Care
+- clickable Medicare Care Compare hyperlink
+
+Downloaded files use the format `facility-assessment-{ccn}.pdf`, for example `facility-assessment-686123.pdf`.
+
+Manual QA checklist:
+
+- Look up CCN `686123`.
+- Complete all required manual operational inputs.
+- Confirm `Download PDF` is disabled before required inputs and enabled after required inputs.
+- Download the PDF and confirm the layout is print-ready with no clipped text.
+- Confirm `INFINITE — Managed by MEDELITE` is present and not replaced by the facility name.
+- Confirm the PDF contains all MVP fields.
+- Confirm the Medicare Care Compare hyperlink is clickable.
 
 ## CMS Data Sources
 
@@ -46,7 +177,9 @@ The MVP currently uses the CMS Provider Information dataset:
 | --- | --- | --- |
 | Provider Information | `4pq5-n9py` | Facility identity, address, certified beds, average residents per day, and star ratings |
 
-CMS integration lives server-side under `src/lib/cms`. UI code should consume normalized internal types rather than CMS field names.
+CMS integration lives server-side under `src/lib/cms` and uses the Provider Data datastore endpoint `/provider-data/api/1/datastore/query/4pq5-n9py/0`. UI code should consume normalized internal types rather than CMS field names.
+
+Successful CMS provider lookups use a short in-memory TTL cache of 5 minutes per server instance. Failed lookups, empty results, and invalid payloads are not cached.
 
 ## API Routes
 
@@ -130,12 +263,62 @@ All API errors return a safe JSON shape:
 }
 ```
 
+## Deployment
+
+The app is ready for Vercel deployment as a standard Next.js App Router project.
+
+Deploy from the Vercel dashboard or CLI:
+
+```bash
+npm install
+npm run build
+vercel deploy
+```
+
+No environment variables are required for the MVP. The app only calls public CMS Provider Data APIs and does not use a database.
+
+Recommended Vercel settings:
+
+- Framework preset: Next.js
+- Build command: `npm run build`
+- Install command: `npm install`
+- Output directory: leave unset for Next.js
+- Environment variables: none required
+
+## MVP Assumptions
+
+- CCNs are always preserved as strings because leading zeros are valid.
+- Current Census is always a manual input.
+- CMS `averageResidentsPerDay` can only prefill Current Census as a user-editable helper.
+- `INFINITE — Managed by MEDELITE` is static brand text and is never replaced by facility names.
+- Facility name override affects only report body display.
+- Missing text fields render as `N/A`; missing numeric CMS values and ratings render as `—`.
+- CMS provider lookup is server-side only.
+
+## Known Limitations
+
+- DOCX export is not implemented.
+- Hospitalization and ED metrics are not implemented.
+- PDF visual QA should be completed in a normal browser because the Codex in-app browser does not support file downloads.
+- The uploaded branding PNG has not yet been integrated into the PDF or preview; current MVP uses the required static brand text.
+- The CMS cache is in-memory per server instance and may not persist across serverless cold starts.
+- `npm audit --audit-level=high` passes. A remaining moderate PostCSS advisory is nested under Next.js and npm currently suggests only a breaking `--force` path, so it is documented rather than force-applied.
+
 ## Bonus Checklist
 
 - [ ] Hospitalization and ED metrics
 - [ ] DOCX export
 - [ ] Cards and charts
 - [ ] Advanced CMS error handling and retry behavior
+
+## Bonus Roadmap
+
+- Add Medicare Claims Quality Measures and State US Averages datasets.
+- Add hospitalization and ED visit metrics to the canonical report model.
+- Add DOCX export from the canonical report model.
+- Integrate the uploaded Medelite/INFINITE branding PNG into preview and export layouts.
+- Add chart/card visualizations for ratings and future metric comparisons.
+- Add deploy-time monitoring and structured logging for CMS failures.
 
 ## Test CCN
 

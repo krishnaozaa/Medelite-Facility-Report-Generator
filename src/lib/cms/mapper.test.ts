@@ -69,4 +69,27 @@ describe("mapCmsProviderRowToFacilityProfile", () => {
       qualityOfResidentCare: null,
     });
   });
+
+  it("keeps sparse CMS address and bed fields safe for downstream placeholders", () => {
+    const profile = mapCmsProviderRowToFacilityProfile({
+      cms_certification_number_ccn: "123456",
+      provider_name: "Sparse Facility",
+      state: "",
+    });
+
+    expect(profile.address).toEqual({
+      street: "",
+      city: "",
+      state: "",
+      zip: "",
+      full: "",
+    });
+    expect(profile.certifiedBeds).toBeNull();
+    expect(profile.ratings).toEqual({
+      overall: null,
+      healthInspection: null,
+      staffing: null,
+      qualityOfResidentCare: null,
+    });
+  });
 });
