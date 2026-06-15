@@ -37,6 +37,7 @@ npm run build
 - [x] Manual operational input form
 - [x] Facility assessment snapshot preview
 - [x] PDF export with `@react-pdf/renderer`
+- [x] Reference-aligned PDF branding and table layout
 - [x] Error, loading, and empty states for the full workflow
 
 ## Facility Lookup UI
@@ -137,7 +138,15 @@ branding: {
 
 PDF export uses `@react-pdf/renderer` and renders from the canonical `FacilityAssessmentReport` model. The UI enables `Download PDF` only after required MVP report fields are present, including manual operational inputs.
 
-The MVP PDF includes:
+The MVP PDF follows the provided Facility Assessment Snapshot reference structure:
+
+- Medelite/INFINITE logo image from `public/branding-medelite.png`
+- centered `FACILITY ASSESSMENT SNAPSHOT` heading
+- centered dynamic state abbreviation
+- one bordered two-column table with bold labels and report values
+- clickable Medicare Care Compare source hyperlink
+
+The MVP table includes:
 
 - `INFINITE — Managed by MEDELITE`
 - `FACILITY ASSESSMENT SNAPSHOT`
@@ -159,13 +168,15 @@ The MVP PDF includes:
 
 Downloaded files use the format `facility-assessment-{ccn}.pdf`, for example `facility-assessment-686123.pdf`.
 
+The PDF renderer can include the 12 hospitalization/ED rows when `hospitalizationMetrics` exists on the canonical report model. The MVP does not yet fetch Medicare Claims Quality Measures or State/US Averages, so those values are not fabricated or hardcoded.
+
 Manual QA checklist:
 
 - Look up CCN `686123`.
 - Complete all required manual operational inputs.
 - Confirm `Download PDF` is disabled before required inputs and enabled after required inputs.
-- Download the PDF and confirm the layout is print-ready with no clipped text.
-- Confirm `INFINITE — Managed by MEDELITE` is present and not replaced by the facility name.
+- Download the PDF and confirm the logo, centered title/state, and bordered two-column table match the reference snapshot structure.
+- Confirm `INFINITE — Managed by MEDELITE` appears through the logo/metadata and is not replaced by the facility name.
 - Confirm the PDF contains all MVP fields.
 - Confirm the Medicare Care Compare hyperlink is clickable.
 

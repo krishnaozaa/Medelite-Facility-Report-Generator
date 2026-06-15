@@ -20,6 +20,7 @@ const pdfMocks = vi.hoisted(() => {
 
 vi.mock("@react-pdf/renderer", () => ({
   Document: "Document",
+  Image: "Image",
   Link: "Link",
   Page: "Page",
   StyleSheet: {

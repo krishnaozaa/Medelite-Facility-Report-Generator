@@ -4,10 +4,11 @@ import type { FacilityAssessmentReport } from "@/types/report";
 
 import { buildMedicareCareCompareUrl } from "@/lib/cms/medicareUrl";
 
+import { REPORT_BRAND_PLATFORM, REPORT_TITLE } from "./branding";
 import { getReportFacilityName } from "./facilityName";
 
-export const REPORT_BRAND_PLATFORM = "INFINITE — Managed by MEDELITE" as const;
-export const REPORT_TITLE = "FACILITY ASSESSMENT SNAPSHOT" as const;
+export { REPORT_BRAND_PLATFORM, REPORT_TITLE } from "./branding";
+
 const EMPTY_PLACEHOLDER = "N/A";
 const MISSING_NUMERIC_PLACEHOLDER = "—";
 

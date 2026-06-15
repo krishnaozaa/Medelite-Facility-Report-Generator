@@ -2,11 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { BrandHeader, BRAND_TEXT } from "./BrandHeader";
+import { BrandHeader, REPORT_BRAND_PLATFORM } from "./BrandHeader";
 import { CcnLookupForm } from "./CcnLookupForm";
 
 vi.mock("@react-pdf/renderer", () => ({
   Document: "Document",
+  Image: "Image",
   Link: "Link",
   Page: "Page",
   StyleSheet: {
@@ -249,7 +250,7 @@ describe("CcnLookupForm", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "Manual Facility Display Name" }),
     ).toBeInTheDocument();
-    expect(screen.getByText(BRAND_TEXT)).toBeInTheDocument();
+    expect(screen.getByText(REPORT_BRAND_PLATFORM)).toBeInTheDocument();
   });
 
   it("shows a clean not-found state", async () => {

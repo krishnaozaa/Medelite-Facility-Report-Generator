@@ -1,12 +1,20 @@
-const BRAND_TEXT = "INFINITE — Managed by MEDELITE";
-const REPORT_TITLE = "FACILITY ASSESSMENT SNAPSHOT";
+import Image from "next/image";
+
+import { BRAND_LOGO_SRC, REPORT_BRAND_PLATFORM, REPORT_TITLE } from "@/lib/report/branding";
 
 export function BrandHeader() {
   return (
     <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-6 py-6 sm:px-8 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-lg font-bold tracking-normal text-infinite sm:text-xl">{BRAND_TEXT}</p>
+          <Image
+            alt={REPORT_BRAND_PLATFORM}
+            className="h-auto w-64 max-w-full sm:w-72"
+            height={102}
+            src={BRAND_LOGO_SRC}
+            width={448}
+          />
+          <p className="sr-only">{REPORT_BRAND_PLATFORM}</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-normal text-ink sm:text-3xl">
             {REPORT_TITLE}
           </h1>
@@ -19,4 +27,4 @@ export function BrandHeader() {
   );
 }
 
-export { BRAND_TEXT, REPORT_TITLE };
+export { BRAND_LOGO_SRC, REPORT_BRAND_PLATFORM, REPORT_TITLE };

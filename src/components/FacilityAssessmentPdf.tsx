@@ -1,5 +1,6 @@
 import {
   Document,
+  Image,
   Link,
   Page,
   StyleSheet,
@@ -8,6 +9,7 @@ import {
 } from "@react-pdf/renderer";
 
 import type { FacilityAssessmentReport } from "@/types/report";
+import { BRAND_LOGO_SRC } from "@/lib/report/branding";
 import { getFacilityAssessmentPdfRows, type PdfFieldRow } from "@/lib/report/pdfExport";
 
 type FacilityAssessmentPdfProps = {
@@ -16,119 +18,104 @@ type FacilityAssessmentPdfProps = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 40,
+    paddingTop: 34,
+    paddingHorizontal: 54,
+    paddingBottom: 28,
     fontFamily: "Helvetica",
-    fontSize: 10,
-    color: "#172033",
+    fontSize: 8.5,
+    color: "#000000",
     backgroundColor: "#ffffff",
   },
   header: {
-    borderBottomColor: "#cbd5e1",
-    borderBottomWidth: 1,
-    paddingBottom: 14,
-    marginBottom: 18,
+    alignItems: "center",
+    marginBottom: 2,
   },
-  brand: {
-    color: "#1d4ed8",
-    fontSize: 18,
-    fontFamily: "Helvetica-Bold",
-    marginBottom: 6,
+  logo: {
+    width: 214,
+    height: 49,
+    objectFit: "contain",
+    marginBottom: 9,
   },
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 16,
+  brandFallback: {
+    fontSize: 1,
+    color: "#ffffff",
+    lineHeight: 1,
   },
   title: {
-    fontSize: 15,
+    fontSize: 12,
     fontFamily: "Helvetica-Bold",
-    color: "#172033",
+    color: "#000000",
+    textAlign: "center",
+    lineHeight: 1.1,
   },
   state: {
-    fontSize: 10,
-    color: "#475569",
-    marginTop: 3,
-  },
-  facilityName: {
-    fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#0f172a",
-    marginBottom: 4,
-  },
-  ccn: {
-    fontSize: 10,
-    color: "#475569",
-  },
-  section: {
-    marginTop: 14,
-  },
-  sectionTitle: {
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
-    color: "#0f766e",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-    marginBottom: 8,
+    color: "#000000",
+    textAlign: "center",
+    lineHeight: 1.05,
   },
-  grid: {
-    borderColor: "#d7dee8",
+  table: {
+    borderColor: "#000000",
     borderWidth: 1,
+    marginTop: 0,
   },
   row: {
     flexDirection: "row",
-    borderBottomColor: "#d7dee8",
+    borderBottomColor: "#000000",
     borderBottomWidth: 1,
-    minHeight: 32,
+    minHeight: 19,
   },
   lastRow: {
     borderBottomWidth: 0,
   },
   labelCell: {
-    width: "38%",
-    padding: 8,
-    backgroundColor: "#f8fafc",
-    borderRightColor: "#d7dee8",
+    width: "53%",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRightColor: "#000000",
     borderRightWidth: 1,
+    justifyContent: "center",
   },
   valueCell: {
-    width: "62%",
-    padding: 8,
+    width: "47%",
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    justifyContent: "center",
   },
   label: {
     fontFamily: "Helvetica-Bold",
-    color: "#475569",
+    color: "#000000",
+    lineHeight: 1.1,
   },
   value: {
-    color: "#172033",
-    lineHeight: 1.35,
+    color: "#000000",
+    fontFamily: "Helvetica-Oblique",
+    lineHeight: 1.1,
   },
   source: {
-    marginTop: 16,
-    padding: 10,
-    backgroundColor: "#eff6ff",
-    borderColor: "#bfdbfe",
-    borderWidth: 1,
+    marginTop: 8,
+    fontSize: 7.5,
+    color: "#000000",
   },
   link: {
-    color: "#1d4ed8",
+    color: "#075985",
     textDecoration: "underline",
   },
   footer: {
     position: "absolute",
-    left: 40,
-    right: 40,
-    bottom: 24,
-    borderTopColor: "#e2e8f0",
-    borderTopWidth: 1,
-    paddingTop: 8,
-    color: "#64748b",
-    fontSize: 8,
+    left: 54,
+    right: 54,
+    bottom: 14,
+    color: "#666666",
+    fontSize: 6.5,
+    textAlign: "center",
   },
 });
 
 function FieldRows({ rows }: { rows: PdfFieldRow[] }) {
   return (
-    <View style={styles.grid}>
+    <View style={styles.table}>
       {rows.map((row, index) => (
         <View
           key={row.label}
@@ -158,33 +145,14 @@ export function FacilityAssessmentPdf({ report }: FacilityAssessmentPdfProps) {
     >
       <Page size="LETTER" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.brand}>{report.branding.platform}</Text>
-          <View style={styles.titleRow}>
-            <View>
-              <Text style={styles.title}>{report.branding.title}</Text>
-              <Text style={styles.state}>State: {report.branding.state}</Text>
-            </View>
-            <View>
-              <Text style={styles.facilityName}>{report.facility.name}</Text>
-              <Text style={styles.ccn}>CCN {report.facility.ccn}</Text>
-            </View>
-          </View>
+          {/* eslint-disable-next-line jsx-a11y/alt-text -- React PDF Image does not support alt text. */}
+          <Image src={BRAND_LOGO_SRC} style={styles.logo} />
+          <Text style={styles.brandFallback}>{report.branding.platform}</Text>
+          <Text style={styles.title}>{report.branding.title}</Text>
+          <Text style={styles.state}>{report.branding.state}</Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Facility</Text>
-          <FieldRows rows={rows.facilityRows} />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Operations</Text>
-          <FieldRows rows={rows.operationRows} />
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Ratings</Text>
-          <FieldRows rows={rows.ratingRows} />
-        </View>
+        <FieldRows rows={rows} />
 
         <View style={styles.source}>
           <Text>
@@ -196,7 +164,7 @@ export function FacilityAssessmentPdf({ report }: FacilityAssessmentPdfProps) {
         </View>
 
         <Text style={styles.footer}>
-          {report.branding.platform} | {report.branding.title}
+          {report.branding.platform} | CCN {report.facility.ccn}
         </Text>
       </Page>
     </Document>
