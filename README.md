@@ -1,6 +1,11 @@
 # Medelite Facility Assessment Report Generator
 
-A lightweight Next.js application for creating polished Facility Assessment Snapshot reports. The app will use a CMS Certification Number / CCN to fetch public CMS nursing-home data, combine it with Medelite operational inputs, and export a report-ready snapshot.
+A lightweight Next.js application for creating polished Facility Assessment Snapshot reports. The app uses a CMS Certification Number / CCN to fetch public CMS nursing-home data, combine it with Medelite operational inputs, and export report-ready PDF/DOCX snapshots.
+
+## Submission Links
+
+- Live deployment URL: `https://medelite-facility-assessment.vercel.app`
+- Public repo URL: `TODO_PUBLIC_REPO_URL`
 
 ## Tech Stack
 
@@ -40,6 +45,18 @@ npm run build
 - [x] Reference-aligned PDF branding and table layout
 - [x] Error, loading, and empty states for the full workflow
 
+## Features Implemented
+
+- CCN lookup through `GET /api/facility/[ccn]`
+- Server-side CMS Provider Information integration
+- Normalized `FacilityProfile` mapper with runtime validation
+- Manual operational input form with Zod validation
+- Facility name override for report body only
+- Canonical `FacilityAssessmentReport` builder
+- Responsive web preview
+- PDF export
+- Error, loading, not-found, timeout, and retry states
+
 ## Bonus Checklist
 
 - [x] Hospitalization and ED metrics
@@ -47,6 +64,14 @@ npm run build
 - [x] Responsive cards
 - [x] SVG 3D comparison charts
 - [x] Advanced CMS error handling and retry behavior
+
+## Bonus Features Implemented
+
+- Medicare Claims Quality Measures integration for facility-level hospitalization/ED metrics
+- State US Averages integration for state and national comparison metrics
+- Editable DOCX export from the same canonical report model as PDF
+- Responsive facility, operations, rating, hospitalization/ED, and 3D chart cards
+- Partial failure handling for optional bonus metric requests
 
 ## Facility Lookup UI
 
@@ -99,6 +124,25 @@ The automated suite covers:
 - responsive facility, operations, rating, hospitalization metric card, and SVG 3D comparison chart rendering
 - invalid manual values keeping export buttons disabled
 - partial bonus CMS metric failures preserving any available claims or benchmark data
+
+## Final QA Checklist
+
+- [x] Empty CCN shows validation and does not call the API.
+- [x] Invalid CCN shows validation and does not call the API.
+- [x] Valid CCN `686123` returns a normalized facility profile.
+- [x] Random valid CCNs are handled through the same API route and return either facility data or clean `404`.
+- [x] Facility name override changes only `Name of Facility` in the report body.
+- [x] Manual Current Census remains user-editable and required.
+- [x] Missing manual fields keep PDF/DOCX buttons disabled.
+- [x] PDF download is enabled only when required data is valid.
+- [x] PDF includes a clickable Medicare Care Compare link.
+- [x] DOCX download is enabled only when required data is valid.
+- [x] DOCX includes editable report rows and Medicare hyperlink relationship.
+- [x] Bonus hospitalization/ED metrics render when CMS data is available.
+- [x] Static brand header remains `INFINITE — Managed by MEDELITE`.
+- [x] Mobile layout uses responsive grids and avoids horizontal overflow.
+- [x] Production build passes.
+- [x] Vercel deployment is ready.
 
 ## Manual Operational Inputs
 
@@ -398,6 +442,10 @@ Recommended Vercel settings:
 - Output directory: leave unset for Next.js
 - Environment variables: none required
 
+Current production deployment:
+
+- `https://medelite-facility-assessment.vercel.app`
+
 ## MVP Assumptions
 
 - CCNs are always preserved as strings because leading zeros are valid.
@@ -411,10 +459,13 @@ Recommended Vercel settings:
 
 ## Known Limitations
 
-- PDF visual QA should be completed in a normal browser because the Codex in-app browser does not support file downloads.
-- DOCX visual QA should be completed in Microsoft Word or Google Docs after download; automated tests inspect the generated DOCX XML and hyperlink relationship.
+- DOCX visual spacing can vary slightly between Microsoft Word and Google Docs because Google reinterprets DOCX table styling on import.
 - The CMS cache is in-memory per server instance and may not persist across serverless cold starts.
 - `npm audit --audit-level=high` passes. A remaining moderate PostCSS advisory is nested under Next.js and npm currently suggests only a breaking `--force` path, so it is documented rather than force-applied.
+
+## Screenshots
+
+No static application screenshots are committed in this repository. The live deployment can be used to capture the final lookup, preview, 3D chart, PDF, and DOCX states for the submission packet.
 
 ## Bonus Roadmap
 
