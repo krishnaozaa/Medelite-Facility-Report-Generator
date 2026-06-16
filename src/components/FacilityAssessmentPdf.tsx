@@ -9,7 +9,7 @@ import {
 } from "@react-pdf/renderer";
 
 import type { FacilityAssessmentReport } from "@/types/report";
-import { BRAND_LOGO_SRC } from "@/lib/report/branding";
+import { BRAND_LOGO_PDF_DATA_URI } from "@/lib/report/brandLogoPdfDataUri";
 import { getFacilityAssessmentPdfRows, type PdfFieldRow } from "@/lib/report/pdfExport";
 
 type FacilityAssessmentPdfProps = {
@@ -18,9 +18,9 @@ type FacilityAssessmentPdfProps = {
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 34,
-    paddingHorizontal: 54,
-    paddingBottom: 28,
+    paddingTop: 24,
+    paddingHorizontal: 52,
+    paddingBottom: 24,
     fontFamily: "Helvetica",
     fontSize: 8.5,
     color: "#000000",
@@ -28,21 +28,33 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: "center",
-    marginBottom: 2,
+    marginBottom: 0,
   },
   logo: {
-    width: 214,
-    height: 49,
+    width: 226,
+    height: 52,
     objectFit: "contain",
-    marginBottom: 9,
+    marginBottom: 4,
   },
   brandFallback: {
-    fontSize: 1,
-    color: "#ffffff",
+    alignItems: "center",
+    marginTop: -3,
+    marginBottom: 6,
+  },
+  brandFallbackPrimary: {
+    color: "#e600c8",
+    fontFamily: "Helvetica-Bold",
+    fontSize: 18,
+    lineHeight: 1,
+  },
+  brandFallbackSecondary: {
+    color: "#008cc9",
+    fontFamily: "Helvetica-Bold",
+    fontSize: 8,
     lineHeight: 1,
   },
   title: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
     color: "#000000",
     textAlign: "center",
@@ -50,7 +62,7 @@ const styles = StyleSheet.create({
   },
   state: {
     fontFamily: "Helvetica-Bold",
-    fontSize: 11,
+    fontSize: 10,
     color: "#000000",
     textAlign: "center",
     lineHeight: 1.05,
@@ -58,20 +70,20 @@ const styles = StyleSheet.create({
   table: {
     borderColor: "#000000",
     borderWidth: 1,
-    marginTop: 0,
+    marginTop: 1,
   },
   row: {
     flexDirection: "row",
     borderBottomColor: "#000000",
     borderBottomWidth: 1,
-    minHeight: 19,
+    minHeight: 18,
   },
   lastRow: {
     borderBottomWidth: 0,
   },
   labelCell: {
     width: "53%",
-    paddingVertical: 4,
+    paddingVertical: 3.5,
     paddingHorizontal: 8,
     borderRightColor: "#000000",
     borderRightWidth: 1,
@@ -79,7 +91,7 @@ const styles = StyleSheet.create({
   },
   valueCell: {
     width: "47%",
-    paddingVertical: 4,
+    paddingVertical: 3.5,
     paddingHorizontal: 12,
     justifyContent: "center",
   },
@@ -94,8 +106,8 @@ const styles = StyleSheet.create({
     lineHeight: 1.1,
   },
   source: {
-    marginTop: 8,
-    fontSize: 7.5,
+    marginTop: 6,
+    fontSize: 7,
     color: "#000000",
   },
   link: {
@@ -104,9 +116,9 @@ const styles = StyleSheet.create({
   },
   footer: {
     position: "absolute",
-    left: 54,
-    right: 54,
-    bottom: 14,
+    left: 52,
+    right: 52,
+    bottom: 10,
     color: "#666666",
     fontSize: 6.5,
     textAlign: "center",
@@ -146,8 +158,11 @@ export function FacilityAssessmentPdf({ report }: FacilityAssessmentPdfProps) {
       <Page size="LETTER" style={styles.page}>
         <View style={styles.header}>
           {/* eslint-disable-next-line jsx-a11y/alt-text -- React PDF Image does not support alt text. */}
-          <Image src={BRAND_LOGO_SRC} style={styles.logo} />
-          <Text style={styles.brandFallback}>{report.branding.platform}</Text>
+          <Image src={{ uri: BRAND_LOGO_PDF_DATA_URI }} style={styles.logo} />
+          <View style={styles.brandFallback}>
+            <Text style={styles.brandFallbackPrimary}>INFINITE</Text>
+            <Text style={styles.brandFallbackSecondary}>Managed by MEDELITE</Text>
+          </View>
           <Text style={styles.title}>{report.branding.title}</Text>
           <Text style={styles.state}>{report.branding.state}</Text>
         </View>
