@@ -47,20 +47,15 @@ export function PdfDownloadButton({ report }: PdfDownloadButtonProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 sm:items-end">
+    <div className="flex flex-col gap-2">
       <button
-        className="inline-flex min-h-11 items-center justify-center bg-medelite px-5 text-sm font-semibold text-white transition hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-medelite focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
+        className="inline-flex min-h-11 items-center justify-center bg-medelite px-5 text-sm font-semibold text-white shadow-card transition hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-medelite/20 disabled:cursor-not-allowed disabled:bg-slate-400 sm:min-w-36"
         disabled={isDisabled}
         onClick={handleDownload}
         type="button"
       >
         {isGenerating ? "Preparing PDF..." : "Download PDF"}
       </button>
-      {!isReady ? (
-        <p className="max-w-xs text-sm text-slate-600">
-          Complete the required manual inputs to enable PDF export.
-        </p>
-      ) : null}
       {error ? (
         <p className="max-w-xs text-sm font-medium text-red-700" role="alert">
           {error}

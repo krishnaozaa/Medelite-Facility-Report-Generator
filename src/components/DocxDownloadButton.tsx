@@ -43,20 +43,15 @@ export function DocxDownloadButton({ report }: DocxDownloadButtonProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 sm:items-end">
+    <div className="flex flex-col gap-2">
       <button
-        className="inline-flex min-h-11 items-center justify-center border border-medelite px-5 text-sm font-semibold text-medelite transition hover:bg-teal-50 focus:outline-none focus:ring-2 focus:ring-medelite focus:ring-offset-2 disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-400 disabled:hover:bg-transparent"
+        className="inline-flex min-h-11 items-center justify-center border border-medelite bg-white px-5 text-sm font-semibold text-medelite shadow-sm transition hover:bg-teal-50 focus:outline-none focus:ring-4 focus:ring-medelite/20 disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-400 disabled:hover:bg-white sm:min-w-36"
         disabled={isDisabled}
         onClick={handleDownload}
         type="button"
       >
         {isGenerating ? "Preparing DOCX..." : "Download DOCX"}
       </button>
-      {!isReady ? (
-        <p className="max-w-xs text-sm text-slate-600">
-          Complete the required manual inputs to enable DOCX export.
-        </p>
-      ) : null}
       {error ? (
         <p className="max-w-xs text-sm font-medium text-red-700" role="alert">
           {error}

@@ -4,24 +4,25 @@ import { BRAND_LOGO_SRC, REPORT_BRAND_PLATFORM, REPORT_TITLE } from "@/lib/repor
 
 export function BrandHeader() {
   return (
-    <header className="border-b border-slate-200 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-6 py-6 sm:px-8 md:flex-row md:items-end md:justify-between">
-        <div>
+    <header className="border-b border-white/70 bg-white/80 backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-5 sm:px-8 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
           <Image
             alt={REPORT_BRAND_PLATFORM}
-            className="h-auto w-64 max-w-full sm:w-72"
+            className="h-auto w-56 max-w-full sm:w-64"
             height={102}
             src={BRAND_LOGO_SRC}
             width={448}
           />
           <p className="sr-only">{REPORT_BRAND_PLATFORM}</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-normal text-ink sm:text-3xl">
+          <h1 className="mt-3 text-xl font-semibold tracking-normal text-ink sm:text-2xl">
             {REPORT_TITLE}
           </h1>
         </div>
-        <p className="max-w-xs text-sm leading-6 text-slate-600">
-          A focused workspace for facility assessment reporting.
-        </p>
+        <div className="flex w-fit items-center gap-2 border border-line bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted shadow-sm">
+          <span className="h-2 w-2 rounded-full bg-medelite" aria-hidden="true" />
+          CMS-connected workspace
+        </div>
       </div>
     </header>
   );

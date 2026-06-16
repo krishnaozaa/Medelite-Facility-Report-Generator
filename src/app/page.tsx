@@ -5,17 +5,20 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <BrandHeader />
-      <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10 sm:px-8 lg:py-14">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-medelite">
-            Report generator
-          </p>
-          <h2 className="mt-4 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">
-            Look up a facility by CCN to start the assessment snapshot.
-          </h2>
-          <p className="mt-4 text-base leading-7 text-slate-700 sm:text-lg">
-            Facility details are loaded from the server-side CMS Provider Information API.
-          </p>
+      <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-8 sm:px-8 lg:py-10">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-medelite">
+              Report generator
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal text-ink sm:text-4xl">
+              Generate a facility report.
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-sm text-muted sm:flex">
+            <span className="border border-line bg-white px-3 py-2 shadow-sm">Server-side CMS</span>
+            <span className="border border-line bg-white px-3 py-2 shadow-sm">PDF and DOCX</span>
+          </div>
         </div>
         <CcnLookupForm />
       </section>

@@ -36,23 +36,6 @@ const styles = StyleSheet.create({
     objectFit: "contain",
     marginBottom: 4,
   },
-  brandFallback: {
-    alignItems: "center",
-    marginTop: -3,
-    marginBottom: 6,
-  },
-  brandFallbackPrimary: {
-    color: "#e600c8",
-    fontFamily: "Helvetica-Bold",
-    fontSize: 18,
-    lineHeight: 1,
-  },
-  brandFallbackSecondary: {
-    color: "#008cc9",
-    fontFamily: "Helvetica-Bold",
-    fontSize: 8,
-    lineHeight: 1,
-  },
   title: {
     fontSize: 11,
     fontFamily: "Helvetica-Bold",
@@ -159,10 +142,6 @@ export function FacilityAssessmentPdf({ report }: FacilityAssessmentPdfProps) {
         <View style={styles.header}>
           {/* eslint-disable-next-line jsx-a11y/alt-text -- React PDF Image does not support alt text. */}
           <Image src={{ uri: BRAND_LOGO_PDF_DATA_URI }} style={styles.logo} />
-          <View style={styles.brandFallback}>
-            <Text style={styles.brandFallbackPrimary}>INFINITE</Text>
-            <Text style={styles.brandFallbackSecondary}>Managed by MEDELITE</Text>
-          </View>
           <Text style={styles.title}>{report.branding.title}</Text>
           <Text style={styles.state}>{report.branding.state}</Text>
         </View>

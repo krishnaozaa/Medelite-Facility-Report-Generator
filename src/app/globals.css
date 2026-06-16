@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: light;
-  background: #f7f9fc;
+  background: #f6f8fc;
   color: #172033;
 }
 
@@ -16,8 +16,11 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    linear-gradient(180deg, rgba(29, 78, 216, 0.06), rgba(15, 118, 110, 0.04)),
-    #f7f9fc;
+    linear-gradient(180deg, rgba(29, 78, 216, 0.08) 0%, rgba(15, 118, 110, 0.05) 36%, rgba(246, 248, 252, 0) 68%),
+    linear-gradient(90deg, rgba(216, 224, 234, 0.26) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(216, 224, 234, 0.2) 1px, transparent 1px),
+    #f6f8fc;
+  background-size: auto, 48px 48px, 48px 48px, auto;
   color: #172033;
   font-family:
     Arial,
@@ -27,4 +30,23 @@ body {
 
 a {
   color: inherit;
+}
+
+@keyframes search-pulse {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(280%);
+  }
+}
+
+.search-progress::after {
+  animation: search-pulse 1.15s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(29, 78, 216, 0.42), transparent);
+  content: "";
+  inset: 0;
+  position: absolute;
+  width: 42%;
 }

@@ -68,6 +68,10 @@ function composeAddress(street: string, city: string, state: string, zip: string
   return [street, trailing].filter(Boolean).join(", ");
 }
 
+function normalizeDisplayAddress(value: string) {
+  return value.replace(/\s*,\s*/g, ", ").replace(/\s+/g, " ").trim();
+}
+
 export function mapCmsProviderRowToFacilityProfile(row: CmsProviderInformationRow): FacilityProfile {
   const ccn = readString(row, fieldAliases.ccn);
   const providerName = readString(row, fieldAliases.providerName);
@@ -88,7 +92,9 @@ export function mapCmsProviderRowToFacilityProfile(row: CmsProviderInformationRo
       city,
       state,
       zip,
-      full: location.length > 0 ? location : composeAddress(street, city, state, zip),
+      full: normalizeDisplayAddress(
+        location.length > 0 ? location : composeAddress(street, city, state, zip),
+      ),
     },
     certifiedBeds: readNullableNumber(row, fieldAliases.certifiedBeds),
     averageResidentsPerDay: readNullableNumber(row, fieldAliases.averageResidentsPerDay),

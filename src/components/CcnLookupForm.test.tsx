@@ -112,6 +112,18 @@ describe("CcnLookupForm", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("shows a contextual CCN prompt while the lookup field is focused", () => {
+    vi.stubGlobal("fetch", vi.fn());
+
+    render(<CcnLookupForm />);
+
+    const ccnInput = screen.getByLabelText("CMS Certification Number / CCN");
+    expect(screen.getByText("Six characters, preserved exactly.")).toBeInTheDocument();
+
+    fireEvent.focus(ccnInput);
+    expect(screen.getByText("Please type your 6-character CCN.")).toBeInTheDocument();
+  });
+
   it("shows loading, disables duplicate submit, and renders normalized facility data", async () => {
     let resolveFetch: (response: Response) => void = () => undefined;
     const fetchPromise = new Promise<Response>((resolve) => {
@@ -141,7 +153,7 @@ describe("CcnLookupForm", () => {
     expect(screen.getByText("CCN 686123")).toBeInTheDocument();
     expect(screen.getByText("5280 SW 157th Ave, Miami, FL")).toBeInTheDocument();
     expect(screen.getByText("120")).toBeInTheDocument();
-    expect(screen.getByText("CMS helper suggestion: 99. You can edit this value.")).toBeInTheDocument();
+    expect(screen.getByText("CMS average suggestion: 99")).toBeInTheDocument();
     expect(screen.getAllByText("Current Census")[1].parentElement).toHaveTextContent("N/A");
     expect(screen.getByText("Overall rating").nextSibling).toHaveTextContent("1");
     expect(screen.getByText("Health inspection").nextSibling).toHaveTextContent("1");
@@ -171,9 +183,6 @@ describe("CcnLookupForm", () => {
 
     const downloadButton = await screen.findByRole("button", { name: "Download PDF" });
     expect(downloadButton).toBeDisabled();
-    expect(
-      screen.getByText("Complete the required manual inputs to enable PDF export."),
-    ).toBeInTheDocument();
 
     fillRequiredManualInputs();
 
@@ -202,7 +211,7 @@ describe("CcnLookupForm", () => {
     expect(screen.getByLabelText("Previous Provider Performance from Medelite")).toBeInTheDocument();
     expect(screen.getByLabelText("Medical Coverage")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Save manual inputs" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply details" }));
 
     expect(screen.getByText("Enter the EMR.")).toBeInTheDocument();
     expect(screen.getByText("Enter the Current Census.")).toBeInTheDocument();
@@ -210,6 +219,27 @@ describe("CcnLookupForm", () => {
     expect(screen.getByText("Select previous Medelite coverage.")).toBeInTheDocument();
     expect(screen.getByText("Enter previous provider performance.")).toBeInTheDocument();
     expect(screen.getByText("Enter medical coverage.")).toBeInTheDocument();
+  });
+
+  it("confirms when required manual details are applied", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(facilityProfile), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<CcnLookupForm />);
+    submitLookup("686123");
+
+    await screen.findByLabelText("EMR");
+    fillRequiredManualInputs();
+    fireEvent.click(screen.getByRole("button", { name: "Apply details" }));
+
+    expect(screen.getByText("Details applied to preview.")).toBeInTheDocument();
   });
 
   it("keeps Current Census editable after prefilling from CMS average residents", async () => {
@@ -228,7 +258,7 @@ describe("CcnLookupForm", () => {
 
     const currentCensus = await screen.findByLabelText("Current Census");
     expect(currentCensus).toHaveValue(null);
-    expect(screen.getByText("CMS helper suggestion: 99. You can edit this value.")).toBeInTheDocument();
+    expect(screen.getByText("CMS average suggestion: 99")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Prefill" }));
     expect(currentCensus).toHaveValue(99);

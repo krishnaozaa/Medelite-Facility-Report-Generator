@@ -71,35 +71,32 @@ export function ManualInputsForm({
 
     const nextErrors = getFieldErrors(manualInputs);
     setErrors(nextErrors);
-    setSavedMessage(Object.keys(nextErrors).length === 0 ? "Manual inputs saved for preview." : null);
+    setSavedMessage(Object.keys(nextErrors).length === 0 ? "Details applied to preview." : null);
   }
 
   return (
     <form
       aria-labelledby="manual-inputs-title"
-      className="border border-slate-200 bg-white p-6 shadow-sm"
+      className="border border-line bg-white p-5 shadow-soft sm:p-6"
       noValidate
       onSubmit={handleSubmit}
     >
-      <div className="border-b border-slate-200 pb-5">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-medelite">
+      <div className="border-b border-line pb-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-medelite">
           Operational inputs
         </p>
-        <h2 id="manual-inputs-title" className="mt-2 text-2xl font-semibold text-ink">
+        <h2 id="manual-inputs-title" className="mt-2 text-xl font-semibold text-ink">
           Manual report details
         </h2>
-        <p className="mt-2 text-sm leading-6 text-slate-600">
-          Current Census is a manual value. CMS average residents can only prefill the field as a helper.
-        </p>
       </div>
 
-      <div className="mt-6 grid gap-5 md:grid-cols-2">
+      <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold text-ink" htmlFor="facility-name-override">
             Facility Name Override
           </label>
           <input
-            className="mt-2 min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+            className="mt-2 min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
             id="facility-name-override"
             name="facilityNameOverride"
             onChange={handleInputChange("facilityNameOverride")}
@@ -116,7 +113,7 @@ export function ManualInputsForm({
           <input
             aria-describedby={errors.emr ? "emr-error" : undefined}
             aria-invalid={errors.emr ? "true" : "false"}
-            className="mt-2 min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+            className="mt-2 min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
             id="emr"
             name="emr"
             onChange={handleInputChange("emr")}
@@ -138,7 +135,7 @@ export function ManualInputsForm({
             <input
               aria-describedby={errors.currentCensus ? "current-census-error" : "current-census-help"}
               aria-invalid={errors.currentCensus ? "true" : "false"}
-              className="min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+              className="min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
               id="current-census"
               inputMode="numeric"
               name="currentCensus"
@@ -147,7 +144,7 @@ export function ManualInputsForm({
               value={manualInputs.currentCensus}
             />
             <button
-              className="inline-flex min-h-11 items-center justify-center border border-slate-300 px-4 text-sm font-semibold text-infinite transition hover:border-infinite hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-infinite focus:ring-offset-2 disabled:cursor-not-allowed disabled:text-slate-400"
+              className="inline-flex min-h-11 items-center justify-center border border-line bg-white px-4 text-sm font-semibold text-infinite transition hover:border-infinite hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-infinite/10 disabled:cursor-not-allowed disabled:text-slate-400"
               disabled={!suggestedCurrentCensus}
               onClick={handlePrefillCurrentCensus}
               type="button"
@@ -160,10 +157,10 @@ export function ManualInputsForm({
               {errors.currentCensus}
             </p>
           ) : (
-            <p className="mt-2 text-sm text-slate-600" id="current-census-help">
+            <p className="mt-2 text-sm text-muted" id="current-census-help">
               {suggestedCurrentCensus
-                ? `CMS helper suggestion: ${suggestedCurrentCensus}. You can edit this value.`
-                : "Enter the current census manually."}
+                ? `CMS average suggestion: ${suggestedCurrentCensus}`
+                : "Manual value"}
             </p>
           )}
         </div>
@@ -175,7 +172,7 @@ export function ManualInputsForm({
           <input
             aria-describedby={errors.typeOfPatient ? "type-of-patient-error" : undefined}
             aria-invalid={errors.typeOfPatient ? "true" : "false"}
-            className="mt-2 min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+            className="mt-2 min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
             id="type-of-patient"
             name="typeOfPatient"
             onChange={handleInputChange("typeOfPatient")}
@@ -203,7 +200,7 @@ export function ManualInputsForm({
                 : undefined
             }
             aria-invalid={errors.previousCoverageFromMedelite ? "true" : "false"}
-            className="mt-2 min-h-11 w-full border border-slate-300 bg-white px-3 text-base text-ink outline-none transition focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+            className="mt-2 min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition focus:border-infinite focus:ring-4 focus:ring-infinite/10"
             id="previous-coverage-from-medelite"
             name="previousCoverageFromMedelite"
             onChange={handleInputChange("previousCoverageFromMedelite")}
@@ -240,7 +237,7 @@ export function ManualInputsForm({
                 : undefined
             }
             aria-invalid={errors.previousProviderPerformanceFromMedelite ? "true" : "false"}
-            className="mt-2 min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+            className="mt-2 min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
             id="previous-provider-performance-from-medelite"
             name="previousProviderPerformanceFromMedelite"
             onChange={handleInputChange("previousProviderPerformanceFromMedelite")}
@@ -264,7 +261,7 @@ export function ManualInputsForm({
           <input
             aria-describedby={errors.medicalCoverage ? "medical-coverage-error" : undefined}
             aria-invalid={errors.medicalCoverage ? "true" : "false"}
-            className="mt-2 min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+            className="mt-2 min-h-11 w-full border border-line bg-white px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
             id="medical-coverage"
             name="medicalCoverage"
             onChange={handleInputChange("medicalCoverage")}
@@ -281,10 +278,10 @@ export function ManualInputsForm({
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <button
-          className="inline-flex min-h-11 items-center justify-center bg-infinite px-5 text-sm font-semibold text-white transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-infinite focus:ring-offset-2"
+          className="inline-flex min-h-11 items-center justify-center bg-infinite px-5 text-sm font-semibold text-white shadow-card transition hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-infinite/20"
           type="submit"
         >
-          Save manual inputs
+          Apply details
         </button>
         {savedMessage ? (
           <p aria-live="polite" className="text-sm font-medium text-medelite">

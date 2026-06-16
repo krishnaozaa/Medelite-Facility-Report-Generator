@@ -94,11 +94,31 @@ describe("FacilitySummary", () => {
     expect(screen.getByText("Hospitalization and ED metrics")).toBeInTheDocument();
     expect(screen.getByText("Short Term Hospitalization").parentElement).toHaveTextContent("N/A");
     expect(screen.getByText("ED Visit").parentElement).toHaveTextContent("N/A");
+    expect(screen.getByRole("img", { name: "STR Hospitalization Facility: N/A" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "LT ED Visit Facility: N/A" })).toBeInTheDocument();
+  });
+
+  it("renders comparison charts for facility, state, and nation metrics", () => {
+    render(<FacilitySummary report={report} />);
+
+    expect(screen.getByText("Metric comparisons")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 4, name: "STR Hospitalization" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 4, name: "STR ED Visit" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 4, name: "LT Hospitalization" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 4, name: "LT ED Visit" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "STR Hospitalization Facility: 18.7%" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "STR Hospitalization State: 23.8%" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "STR Hospitalization Nation: 21.5%" }),
+    ).toBeInTheDocument();
   });
 
   it("omits hospitalization metric cards when optional metrics are unavailable", () => {
     render(<FacilitySummary report={{ ...report, hospitalizationMetrics: undefined }} />);
 
     expect(screen.queryByText("Hospitalization and ED metrics")).not.toBeInTheDocument();
+    expect(screen.queryByText("Metric comparisons")).not.toBeInTheDocument();
   });
 });

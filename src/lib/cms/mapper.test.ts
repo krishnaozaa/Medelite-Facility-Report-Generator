@@ -72,6 +72,20 @@ describe("mapCmsProviderRowToFacilityProfile", () => {
     });
   });
 
+  it("normalizes comma spacing in CMS Location display values", () => {
+    const profile = mapCmsProviderRowToFacilityProfile({
+      cms_certification_number_ccn: "686123",
+      provider_name: "Kendall Lakes Healthcare and Rehab Center",
+      provider_address: "5280 SW 157 AVENUE",
+      citytown: "MIAMI",
+      state: "FL",
+      zip_code: "33185",
+      location: "5280 SW 157 AVENUE,MIAMI,FL,33185",
+    });
+
+    expect(profile.address.full).toBe("5280 SW 157 AVENUE, MIAMI, FL, 33185");
+  });
+
   it("keeps sparse CMS address and bed fields safe for downstream placeholders", () => {
     const profile = mapCmsProviderRowToFacilityProfile({
       cms_certification_number_ccn: "123456",

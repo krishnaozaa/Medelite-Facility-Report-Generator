@@ -50,6 +50,7 @@ export function CcnLookupForm() {
   const [manualInputs, setManualInputs] = useState<ManualInputs>(emptyManualInputs);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isCcnFocused, setIsCcnFocused] = useState(false);
   const inFlightLookupRef = useRef(false);
 
   const isLoading = status === "loading";
@@ -125,13 +126,16 @@ export function CcnLookupForm() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <form
-        className="border border-slate-200 bg-white p-6 shadow-sm"
+        className="relative overflow-hidden border border-line bg-white p-5 shadow-soft sm:p-6"
         noValidate
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col gap-4 md:flex-row md:items-end">
+        {isLoading ? (
+          <div className="search-progress absolute left-0 top-0 h-1 w-full overflow-hidden bg-blue-100" />
+        ) : null}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           <div className="flex-1">
             <label className="block text-sm font-semibold text-ink" htmlFor="ccn">
               CMS Certification Number / CCN
@@ -139,13 +143,15 @@ export function CcnLookupForm() {
             <input
               aria-describedby={validationError ? "ccn-error" : "ccn-help"}
               aria-invalid={validationError ? "true" : "false"}
-              className="mt-2 min-h-11 w-full border border-slate-300 px-3 text-base text-ink outline-none transition placeholder:text-slate-400 focus:border-infinite focus:ring-2 focus:ring-infinite/20"
+              className="mt-2 min-h-12 w-full border border-line bg-white px-4 text-lg font-semibold tracking-[0.08em] text-ink outline-none transition placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:border-infinite focus:ring-4 focus:ring-infinite/10"
               disabled={isLoading}
               id="ccn"
               inputMode="numeric"
               maxLength={12}
               name="ccn"
+              onBlur={() => setIsCcnFocused(false)}
               onChange={(event) => setCcn(event.target.value)}
+              onFocus={() => setIsCcnFocused(true)}
               placeholder="686123"
               type="text"
               value={ccn}
@@ -155,16 +161,22 @@ export function CcnLookupForm() {
                 {validationError}
               </p>
             ) : (
-              <p className="mt-2 text-sm text-slate-600" id="ccn-help">
-                Enter a 6-character CCN.
+              <p className="mt-2 text-sm text-muted" id="ccn-help">
+                {isCcnFocused ? "Please type your 6-character CCN." : "Six characters, preserved exactly."}
               </p>
             )}
           </div>
           <button
-            className="inline-flex min-h-11 items-center justify-center bg-infinite px-5 text-sm font-semibold text-white transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-infinite focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
+            className="inline-flex min-h-12 items-center justify-center gap-2 bg-infinite px-6 text-sm font-semibold text-white shadow-card transition hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-infinite/20 disabled:cursor-not-allowed disabled:bg-slate-400 lg:min-w-36"
             disabled={isLoading}
             type="submit"
           >
+            {isLoading ? (
+              <span
+                aria-hidden="true"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+              />
+            ) : null}
             {isLoading ? "Searching..." : "Search"}
           </button>
         </div>
@@ -173,7 +185,7 @@ export function CcnLookupForm() {
       {isLoading ? (
         <div
           aria-live="polite"
-          className="border border-blue-200 bg-blue-50 p-4 text-sm font-medium text-blue-900"
+          className="border border-blue-100 bg-white/90 p-4 text-sm font-medium text-blue-950 shadow-sm"
           role="status"
         >
           Looking up facility data...
@@ -181,17 +193,17 @@ export function CcnLookupForm() {
       ) : null}
 
       {status === "not-found" ? (
-        <div className="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950" role="status">
+        <div className="border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 shadow-sm" role="status">
           No facility was found for that CCN.
         </div>
       ) : null}
 
       {status === "error" ? (
-        <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-950" role="alert">
+        <div className="border border-red-200 bg-red-50 p-4 text-sm text-red-950 shadow-sm" role="alert">
           <p className="font-semibold">Facility lookup failed.</p>
           <p className="mt-1">{apiError ?? "Please try again."}</p>
           <button
-            className="mt-3 inline-flex min-h-10 items-center justify-center border border-red-300 px-4 text-sm font-semibold text-red-900 transition hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
+            className="mt-3 inline-flex min-h-10 items-center justify-center border border-red-300 bg-white px-4 text-sm font-semibold text-red-900 transition hover:bg-red-100 focus:outline-none focus:ring-4 focus:ring-red-700/15"
             onClick={handleRetry}
             type="button"
           >
@@ -207,14 +219,14 @@ export function CcnLookupForm() {
             manualInputs={manualInputs}
             onManualInputsChange={setManualInputs}
           />
-          <div className="flex flex-col gap-4 border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border border-line bg-white p-5 shadow-soft sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-medelite">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-medelite">
                 Export
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-ink">Facility snapshot exports</h2>
+              <h2 className="mt-2 text-xl font-semibold text-ink">Facility snapshot exports</h2>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <div className="grid gap-3 sm:grid-cols-2">
               <PdfDownloadButton report={report} />
               <DocxDownloadButton report={report} />
             </div>
