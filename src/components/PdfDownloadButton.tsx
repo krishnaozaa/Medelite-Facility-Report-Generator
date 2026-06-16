@@ -8,17 +8,19 @@ import {
   buildFacilityAssessmentPdfFileName,
   isFacilityAssessmentReportPdfReady,
 } from "@/lib/report/pdfExport";
+import { downloadBlob } from "@/lib/utils/downloadBlob";
 
 import { FacilityAssessmentPdf } from "./FacilityAssessmentPdf";
 
 type PdfDownloadButtonProps = {
   report: FacilityAssessmentReport;
+  isReady?: boolean;
 };
 
-export function PdfDownloadButton({ report }: PdfDownloadButtonProps) {
+export function PdfDownloadButton({ report, isReady: isReadyOverride = true }: PdfDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isReady = isFacilityAssessmentReportPdfReady(report);
+  const isReady = isReadyOverride && isFacilityAssessmentReportPdfReady(report);
   const isDisabled = !isReady || isGenerating;
 
   async function handleDownload() {
@@ -31,14 +33,7 @@ export function PdfDownloadButton({ report }: PdfDownloadButtonProps) {
 
     try {
       const blob = await pdf(<FacilityAssessmentPdf report={report} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = buildFacilityAssessmentPdfFileName(report);
-      document.body.append(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, buildFacilityAssessmentPdfFileName(report));
     } catch {
       setError("PDF export failed. Please try again.");
     } finally {

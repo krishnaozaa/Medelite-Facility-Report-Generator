@@ -14,12 +14,12 @@ import {
 } from "docx";
 
 import type { FacilityAssessmentReport } from "@/types/report";
-import { buildFacilityAssessmentPdfFileName } from "@/lib/report/pdfExport";
 import {
   getFacilityAssessmentReportRows,
   isFacilityAssessmentReportExportReady,
   type ReportFieldRow,
 } from "@/lib/report/reportRows";
+export { buildFacilityAssessmentDocxFileName } from "@/lib/report/fileNames";
 
 const TABLE_BORDER = {
   style: BorderStyle.SINGLE,
@@ -107,10 +107,6 @@ function createReportRow(row: ReportFieldRow) {
       }),
     ],
   });
-}
-
-export function buildFacilityAssessmentDocxFileName(report: FacilityAssessmentReport) {
-  return buildFacilityAssessmentPdfFileName(report).replace(/\.pdf$/, ".docx");
 }
 
 export function isFacilityAssessmentReportDocxReady(report: FacilityAssessmentReport) {

@@ -3,17 +3,19 @@
 import { useState } from "react";
 
 import type { FacilityAssessmentReport } from "@/types/report";
-import { buildFacilityAssessmentPdfFileName } from "@/lib/report/pdfExport";
+import { buildFacilityAssessmentDocxFileName } from "@/lib/report/fileNames";
 import { isFacilityAssessmentReportExportReady } from "@/lib/report/reportRows";
+import { downloadBlob } from "@/lib/utils/downloadBlob";
 
 type DocxDownloadButtonProps = {
   report: FacilityAssessmentReport;
+  isReady?: boolean;
 };
 
-export function DocxDownloadButton({ report }: DocxDownloadButtonProps) {
+export function DocxDownloadButton({ report, isReady: isReadyOverride = true }: DocxDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isReady = isFacilityAssessmentReportExportReady(report);
+  const isReady = isReadyOverride && isFacilityAssessmentReportExportReady(report);
   const isDisabled = !isReady || isGenerating;
 
   async function handleDownload() {
@@ -27,14 +29,7 @@ export function DocxDownloadButton({ report }: DocxDownloadButtonProps) {
     try {
       const { buildFacilityDocx } = await import("@/lib/report/docx/buildFacilityDocx");
       const blob = await buildFacilityDocx(report);
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = buildFacilityAssessmentPdfFileName(report).replace(/\.pdf$/, ".docx");
-      document.body.append(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, buildFacilityAssessmentDocxFileName(report));
     } catch {
       setError("DOCX export failed. Please try again.");
     } finally {

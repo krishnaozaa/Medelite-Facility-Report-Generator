@@ -189,6 +189,33 @@ describe("CcnLookupForm", () => {
     expect(downloadButton).toBeEnabled();
   });
 
+  it("keeps exports disabled when manual inputs are present but invalid", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(facilityProfile), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    render(<CcnLookupForm />);
+    submitLookup("686123");
+
+    const pdfButton = await screen.findByRole("button", { name: "Download PDF" });
+    const docxButton = screen.getByRole("button", { name: "Download DOCX" });
+
+    fillRequiredManualInputs();
+    fireEvent.change(screen.getByLabelText("Current Census"), { target: { value: "-1" } });
+
+    expect(pdfButton).toBeDisabled();
+    expect(docxButton).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Apply details" }));
+    expect(screen.getByText("Current Census cannot be negative.")).toBeInTheDocument();
+  });
+
   it("renders manual fields after lookup and validates required values", async () => {
     vi.stubGlobal(
       "fetch",

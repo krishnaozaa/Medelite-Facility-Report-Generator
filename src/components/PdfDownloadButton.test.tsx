@@ -64,6 +64,7 @@ const readyReport = {
 describe("PdfDownloadButton", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     pdfMocks.pdfMock.mockClear();
     pdfMocks.toBlobMock.mockClear();
   });
@@ -98,7 +99,9 @@ describe("PdfDownloadButton", () => {
     expect(anchor.href).toBe("blob:facility-assessment");
     expect(append).toHaveBeenCalledWith(anchor);
     expect(remove).toHaveBeenCalledTimes(1);
-    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:facility-assessment");
+    await waitFor(() => {
+      expect(revokeObjectUrl).toHaveBeenCalledWith("blob:facility-assessment");
+    });
   });
 
   it("is disabled for incomplete report data", () => {
@@ -113,6 +116,12 @@ describe("PdfDownloadButton", () => {
         }}
       />,
     );
+
+    expect(screen.getByRole("button", { name: "Download PDF" })).toBeDisabled();
+  });
+
+  it("can be disabled by upstream manual input validation", () => {
+    render(<PdfDownloadButton isReady={false} report={readyReport} />);
 
     expect(screen.getByRole("button", { name: "Download PDF" })).toBeDisabled();
   });

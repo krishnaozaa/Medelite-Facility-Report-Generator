@@ -84,7 +84,9 @@ describe("DocxDownloadButton", () => {
     expect(anchor.href).toBe("blob:facility-assessment-docx");
     expect(append).toHaveBeenCalledWith(anchor);
     expect(remove).toHaveBeenCalledTimes(1);
-    expect(revokeObjectUrl).toHaveBeenCalledWith("blob:facility-assessment-docx");
+    await waitFor(() => {
+      expect(revokeObjectUrl).toHaveBeenCalledWith("blob:facility-assessment-docx");
+    });
   });
 
   it("is disabled until a report has required manual values", () => {
@@ -99,6 +101,12 @@ describe("DocxDownloadButton", () => {
         }}
       />,
     );
+
+    expect(screen.getByRole("button", { name: "Download DOCX" })).toBeDisabled();
+  });
+
+  it("can be disabled by upstream manual input validation", () => {
+    render(<DocxDownloadButton isReady={false} report={readyReport} />);
 
     expect(screen.getByRole("button", { name: "Download DOCX" })).toBeDisabled();
   });

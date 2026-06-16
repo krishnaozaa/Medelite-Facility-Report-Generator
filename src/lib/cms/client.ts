@@ -105,11 +105,15 @@ async function fetchHospitalizationMetrics(
       ? fetchJsonResults(buildStateAveragesLookupUrl(state), signal, "CMS state averages lookup")
       : Promise.resolve([]);
 
-  const [claimsRows, stateRows, nationalRows] = await Promise.all([
+  // Bonus metrics should degrade independently; a failed average lookup should not hide facility claims data.
+  const [claimsRowsResult, stateRowsResult, nationalRowsResult] = await Promise.allSettled([
     fetchJsonResults(buildClaimsLookupUrl(ccn), signal, "CMS claims lookup"),
     stateAveragesPromise,
     fetchJsonResults(buildStateAveragesLookupUrl("NATION"), signal, "CMS national averages lookup"),
   ]);
+  const claimsRows = claimsRowsResult.status === "fulfilled" ? claimsRowsResult.value : [];
+  const stateRows = stateRowsResult.status === "fulfilled" ? stateRowsResult.value : [];
+  const nationalRows = nationalRowsResult.status === "fulfilled" ? nationalRowsResult.value : [];
 
   return mapCmsHospitalizationMetrics(
     claimsRows as CmsClaimsQualityMeasureRow[],

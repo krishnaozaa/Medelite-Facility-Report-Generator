@@ -45,8 +45,8 @@ npm run build
 - [x] Hospitalization and ED metrics
 - [x] DOCX export
 - [x] Responsive cards
-- [ ] Optional charts
-- [ ] Advanced CMS error handling and retry behavior
+- [x] SVG 3D comparison charts
+- [x] Advanced CMS error handling and retry behavior
 
 ## Facility Lookup UI
 
@@ -60,8 +60,9 @@ The UI supports:
 - Retryable messaging for CMS/API failures
 - A normalized facility preview with facility name, CCN, location, certified beds, CMS average residents per day, ratings, and a Medicare source link
 - 12 hospitalization/ED metric rows when CMS claims and average data are available
+- SVG 3D comparison charts for Facility vs State vs Nation hospitalization/ED benchmarks
 
-`averageResidentsPerDay` is displayed only as a CMS helper value. It is not treated as Current Census; Current Census will be entered manually in a later MVP step.
+`averageResidentsPerDay` is displayed only as a CMS helper value. It is not treated as Current Census; Current Census remains a required manual field.
 
 To test locally:
 
@@ -95,7 +96,9 @@ The automated suite covers:
 - canonical report model assertions
 - PDF readiness, disabled/enabled behavior, filename generation, generation failure, and Medicare URL presence
 - DOCX readiness, disabled/enabled behavior, filename generation, generation failure, static branding, optional metric handling, and Medicare hyperlink presence
-- responsive facility, operations, rating, and hospitalization metric card rendering
+- responsive facility, operations, rating, hospitalization metric card, and SVG 3D comparison chart rendering
+- invalid manual values keeping export buttons disabled
+- partial bonus CMS metric failures preserving any available claims or benchmark data
 
 ## Manual Operational Inputs
 
@@ -222,7 +225,7 @@ Downloaded files use the format `facility-assessment-{ccn}.docx`, for example `f
 
 Known DOCX limitation: Microsoft Word and Google Docs both open the generated document as an editable table document, but exact hyperlink color and table spacing can vary slightly after Google Docs import because Google reinterprets DOCX styling.
 
-## Bonus Responsive Cards
+## Bonus Responsive Cards And Charts
 
 The report preview uses responsive cards rendered from the canonical report model:
 
@@ -230,8 +233,9 @@ The report preview uses responsive cards rendered from the canonical report mode
 - manual operations card for EMR, Current Census, patient type, previous coverage, provider performance, and medical coverage
 - four star rating cards for Overall, Health Inspection, Staffing, and Quality of Resident Care
 - hospitalization/ED metric cards when optional bonus metrics are available
+- SVG 3D comparison charts for Facility, State, and Nation values across STR Hospitalization, STR ED Visit, LT Hospitalization, and LT ED Visit
 
-No visualization library is currently installed. Charts remain optional and deferred because the current data is compact enough to present clearly as cards without adding client-side bundle weight. PDF and DOCX exports continue to use the canonical report rows and are not affected by the card presentation layer.
+No visualization library is installed. The charts are custom SVG components to avoid adding charting-library bundle weight for four static benchmark comparisons. PDF and DOCX exports continue to use the canonical report rows and are not affected by the card/chart presentation layer.
 
 ## Bonus Hospitalization And ED Metrics
 
@@ -274,7 +278,7 @@ The app currently uses these CMS datasets:
 
 CMS integration lives server-side under `src/lib/cms` and uses Provider Data datastore endpoints. UI code should consume normalized internal types rather than CMS field names.
 
-Successful CMS provider lookups use a short in-memory TTL cache of 5 minutes per server instance. Failed lookups, empty results, and invalid payloads are not cached.
+Successful CMS provider lookups use a short in-memory TTL cache of 5 minutes per server instance. Failed lookups, empty results, and invalid payloads are not cached. Optional hospitalization/ED metric requests degrade independently, so a failed state or national average request does not discard available facility claims data.
 
 ## API Routes
 
@@ -414,7 +418,6 @@ Recommended Vercel settings:
 
 ## Bonus Roadmap
 
-- Add optional comparison charts for Facility vs State vs Nation metrics if the extra visual layer proves useful.
 - Add deploy-time monitoring and structured logging for CMS failures.
 
 ## Test CCN
@@ -428,3 +431,7 @@ The app and generated reports must always use the static brand text:
 `INFINITE — Managed by MEDELITE`
 
 Never replace `INFINITE` with the facility name, CMS provider name, legal business name, or manual override. Facility names belong only in report body fields such as `Name of Facility`.
+
+## Final Branding Assumption
+
+Visual branding uses the downloaded INFINITE/Medelite banner image from `public/branding-medelite.png` instead of rendering only typed text for `INFINITE — Managed by MEDELITE`, because the banner better matches production-grade brand presentation while the static brand text remains preserved in alt text, metadata, and fallback copy.

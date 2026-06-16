@@ -101,7 +101,7 @@ describe("FacilitySummary", () => {
   it("renders comparison charts for facility, state, and nation metrics", () => {
     render(<FacilitySummary report={report} />);
 
-    expect(screen.getByText("Metric comparisons")).toBeInTheDocument();
+    expect(screen.getByText("3D metric comparisons")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 4, name: "STR Hospitalization" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 4, name: "STR ED Visit" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 4, name: "LT Hospitalization" })).toBeInTheDocument();
@@ -119,6 +119,6 @@ describe("FacilitySummary", () => {
     render(<FacilitySummary report={{ ...report, hospitalizationMetrics: undefined }} />);
 
     expect(screen.queryByText("Hospitalization and ED metrics")).not.toBeInTheDocument();
-    expect(screen.queryByText("Metric comparisons")).not.toBeInTheDocument();
+    expect(screen.queryByText("3D metric comparisons")).not.toBeInTheDocument();
   });
 });

@@ -16,6 +16,11 @@ type RatingCard = SummaryRow & {
 type ComparisonPoint = {
   label: "Facility" | "State" | "Nation";
   value: string;
+  tone: {
+    primary: string;
+    deep: string;
+    highlight: string;
+  };
 };
 
 type ComparisonChart = {
@@ -78,33 +83,81 @@ function getComparisonCharts(report: FacilityAssessmentReport): ComparisonChart[
     {
       title: "STR Hospitalization",
       points: [
-        { label: "Facility", value: report.hospitalizationMetrics.strHospitalization },
-        { label: "State", value: report.hospitalizationMetrics.strHospitalizationStateAvg },
-        { label: "Nation", value: report.hospitalizationMetrics.strHospitalizationNationalAvg },
+        {
+          label: "Facility",
+          value: report.hospitalizationMetrics.strHospitalization,
+          tone: { primary: "#0f766e", deep: "#064e46", highlight: "#5eead4" },
+        },
+        {
+          label: "State",
+          value: report.hospitalizationMetrics.strHospitalizationStateAvg,
+          tone: { primary: "#2563eb", deep: "#1e3a8a", highlight: "#93c5fd" },
+        },
+        {
+          label: "Nation",
+          value: report.hospitalizationMetrics.strHospitalizationNationalAvg,
+          tone: { primary: "#c026d3", deep: "#86198f", highlight: "#f0abfc" },
+        },
       ],
     },
     {
       title: "STR ED Visit",
       points: [
-        { label: "Facility", value: report.hospitalizationMetrics.strEdVisit },
-        { label: "State", value: report.hospitalizationMetrics.strEdVisitStateAvg },
-        { label: "Nation", value: report.hospitalizationMetrics.strEdVisitNationalAvg },
+        {
+          label: "Facility",
+          value: report.hospitalizationMetrics.strEdVisit,
+          tone: { primary: "#0f766e", deep: "#064e46", highlight: "#5eead4" },
+        },
+        {
+          label: "State",
+          value: report.hospitalizationMetrics.strEdVisitStateAvg,
+          tone: { primary: "#2563eb", deep: "#1e3a8a", highlight: "#93c5fd" },
+        },
+        {
+          label: "Nation",
+          value: report.hospitalizationMetrics.strEdVisitNationalAvg,
+          tone: { primary: "#c026d3", deep: "#86198f", highlight: "#f0abfc" },
+        },
       ],
     },
     {
       title: "LT Hospitalization",
       points: [
-        { label: "Facility", value: report.hospitalizationMetrics.ltHospitalization },
-        { label: "State", value: report.hospitalizationMetrics.ltHospitalizationStateAvg },
-        { label: "Nation", value: report.hospitalizationMetrics.ltHospitalizationNationalAvg },
+        {
+          label: "Facility",
+          value: report.hospitalizationMetrics.ltHospitalization,
+          tone: { primary: "#0f766e", deep: "#064e46", highlight: "#5eead4" },
+        },
+        {
+          label: "State",
+          value: report.hospitalizationMetrics.ltHospitalizationStateAvg,
+          tone: { primary: "#2563eb", deep: "#1e3a8a", highlight: "#93c5fd" },
+        },
+        {
+          label: "Nation",
+          value: report.hospitalizationMetrics.ltHospitalizationNationalAvg,
+          tone: { primary: "#c026d3", deep: "#86198f", highlight: "#f0abfc" },
+        },
       ],
     },
     {
       title: "LT ED Visit",
       points: [
-        { label: "Facility", value: report.hospitalizationMetrics.ltEdVisit },
-        { label: "State", value: report.hospitalizationMetrics.ltEdVisitStateAvg },
-        { label: "Nation", value: report.hospitalizationMetrics.ltEdVisitNationalAvg },
+        {
+          label: "Facility",
+          value: report.hospitalizationMetrics.ltEdVisit,
+          tone: { primary: "#0f766e", deep: "#064e46", highlight: "#5eead4" },
+        },
+        {
+          label: "State",
+          value: report.hospitalizationMetrics.ltEdVisitStateAvg,
+          tone: { primary: "#2563eb", deep: "#1e3a8a", highlight: "#93c5fd" },
+        },
+        {
+          label: "Nation",
+          value: report.hospitalizationMetrics.ltEdVisitNationalAvg,
+          tone: { primary: "#c026d3", deep: "#86198f", highlight: "#f0abfc" },
+        },
       ],
     },
   ];
@@ -127,39 +180,169 @@ function getOperationsRows(report: FacilityAssessmentReport): SummaryRow[] {
   ];
 }
 
-function ComparisonBars({ chart }: { chart: ComparisonChart }) {
+function getChartId(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function ComparisonColumns({ chart }: { chart: ComparisonChart }) {
   const parsedValues = chart.points.map((point) => parseMetricValue(point.value));
   const maxValue = Math.max(...parsedValues.map((value) => value ?? 0), 0);
+  const topValue = maxValue > 0 ? maxValue.toLocaleString(undefined, { maximumFractionDigits: 1 }) : "N/A";
+  // Keep this visualization SVG-only to avoid adding charting-library weight for four static comparisons.
+  const chartId = getChartId(chart.title);
+  const baseY = 262;
+  const cylinderWidth = 76;
+  const cylinderRadiusY = 14;
 
   return (
-    <div className="border border-line bg-white p-4 shadow-sm">
-      <h4 className="text-sm font-semibold text-ink">{chart.title}</h4>
-      <div className="mt-4 space-y-3">
-        {chart.points.map((point, index) => {
-          const value = parsedValues[index];
-          const width = value === null || maxValue === 0 ? 0 : Math.max((value / maxValue) * 100, 6);
-
-          return (
-            <div className="grid grid-cols-[4.5rem_1fr_4rem] items-center gap-3" key={point.label}>
-              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">
-                {point.label}
-              </span>
-              <div
-                aria-label={`${chart.title} ${point.label}: ${point.value}`}
-                className="h-2.5 overflow-hidden bg-slate-100"
-                role="img"
-              >
-                <div
-                  className="h-full bg-medelite"
-                  style={{ width: `${width}%` }}
-                />
-              </div>
-              <span className="text-right text-sm font-semibold text-ink">{point.value}</span>
-            </div>
-          );
-        })}
+    <article className="overflow-hidden border border-line bg-white shadow-soft">
+      <div className="border-b border-line bg-white p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-medelite">
+              Benchmark model
+            </p>
+            <h4 className="mt-2 text-lg font-semibold text-ink">{chart.title}</h4>
+          </div>
+          <div className="border border-line bg-surface px-3 py-2 text-right shadow-sm">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-muted">
+              Scale max
+            </p>
+            <p className="mt-1 text-sm font-semibold text-ink">{topValue}</p>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="bg-[radial-gradient(circle_at_18%_8%,rgba(15,118,110,0.13),transparent_30%),linear-gradient(135deg,#f8fbff_0%,#ffffff_54%,#f7f9fd_100%)] p-4 sm:p-5">
+        <svg
+          aria-label={`${chart.title} 3D benchmark comparison`}
+          className="h-auto w-full"
+          role="img"
+          viewBox="0 0 720 360"
+        >
+          <defs>
+            <filter id={`${chartId}-soft-shadow`} x="-30%" y="-30%" width="160%" height="180%">
+              <feDropShadow dx="0" dy="14" floodColor="#0f172a" floodOpacity="0.18" stdDeviation="10" />
+            </filter>
+            <linearGradient id={`${chartId}-stage`} x1="0%" x2="100%" y1="0%" y2="100%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="100%" stopColor="#eef6fb" />
+            </linearGradient>
+            {chart.points.map((point) => {
+              const pointId = `${chartId}-${point.label.toLowerCase()}`;
+
+              return (
+                <linearGradient id={`${pointId}-body`} key={pointId} x1="0%" x2="100%" y1="0%" y2="0%">
+                  <stop offset="0%" stopColor={point.tone.highlight} />
+                  <stop offset="18%" stopColor={point.tone.primary} />
+                  <stop offset="72%" stopColor={point.tone.primary} />
+                  <stop offset="100%" stopColor={point.tone.deep} />
+                </linearGradient>
+              );
+            })}
+          </defs>
+
+          <rect fill="transparent" height="360" width="720" />
+          <polygon
+            fill={`url(#${chartId}-stage)`}
+            points="82,266 658,266 612,326 36,326"
+            stroke="#d6e1eb"
+            strokeWidth="1.5"
+          />
+          <path d="M118 288H586" stroke="#cbd7e4" strokeDasharray="7 8" strokeWidth="1.4" />
+          <path d="M166 246H632" stroke="#e2e8f0" strokeDasharray="6 9" strokeWidth="1.2" />
+          <path d="M210 205H640" stroke="#edf2f7" strokeDasharray="6 9" strokeWidth="1.2" />
+
+          {chart.points.map((point, index) => {
+            const value = parsedValues[index];
+            const height = value === null || maxValue === 0 ? 0 : Math.max((value / maxValue) * 184, 24);
+            const x = 164 + index * 196;
+            const topY = baseY - height;
+            const pointId = `${chartId}-${point.label.toLowerCase()}`;
+
+            return (
+              <g filter={`url(#${chartId}-soft-shadow)`} key={point.label}>
+                <ellipse cx={x + 11} cy={baseY + 18} fill="#0f172a" opacity="0.14" rx="64" ry="13" />
+                <rect
+                  fill={`url(#${pointId}-body)`}
+                  height={height}
+                  rx="2"
+                  width={cylinderWidth}
+                  x={x - cylinderWidth / 2}
+                  y={topY}
+                />
+                <path
+                  d={`M${x - cylinderWidth / 2} ${topY} C${x - 22} ${topY + 18} ${x - 20} ${baseY - 18} ${x - cylinderWidth / 2} ${baseY} V${topY}Z`}
+                  fill="#ffffff"
+                  opacity="0.16"
+                />
+                <path
+                  d={`M${x + cylinderWidth / 2} ${topY} C${x + 21} ${topY + 18} ${x + 21} ${baseY - 18} ${x + cylinderWidth / 2} ${baseY} V${topY}Z`}
+                  fill="#0f172a"
+                  opacity="0.16"
+                />
+                <ellipse
+                  cx={x}
+                  cy={topY}
+                  fill={point.tone.highlight}
+                  opacity="0.95"
+                  rx={cylinderWidth / 2}
+                  ry={cylinderRadiusY}
+                  stroke="#ffffff"
+                  strokeOpacity="0.62"
+                  strokeWidth="2"
+                />
+                <ellipse
+                  cx={x}
+                  cy={baseY}
+                  fill={point.tone.deep}
+                  opacity="0.2"
+                  rx={cylinderWidth / 2}
+                  ry={cylinderRadiusY}
+                />
+                <rect
+                  fill="#ffffff"
+                  height="32"
+                  rx="0"
+                  stroke="#d6e1eb"
+                  strokeWidth="1.4"
+                  width="74"
+                  x={x - 37}
+                  y={Math.max(topY - 48, 18)}
+                />
+                <text
+                  fill="#172033"
+                  fontSize="18"
+                  fontWeight="700"
+                  textAnchor="middle"
+                  x={x}
+                  y={Math.max(topY - 26, 40)}
+                >
+                  {point.value}
+                </text>
+                <text
+                  fill="#64748b"
+                  fontSize="17"
+                  fontWeight="700"
+                  letterSpacing="3"
+                  textAnchor="middle"
+                  x={x}
+                  y="336"
+                >
+                  {point.label.toUpperCase()}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <div className="sr-only">
+          {chart.points.map((point) => (
+            <span aria-label={`${chart.title} ${point.label}: ${point.value}`} key={point.label} role="img" />
+          ))}
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -318,11 +501,11 @@ export function FacilitySummary({ report }: FacilitySummaryProps) {
 
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-medelite">
-              Metric comparisons
+              3D metric comparisons
             </h3>
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
               {comparisonCharts.map((chart) => (
-                <ComparisonBars chart={chart} key={chart.title} />
+                <ComparisonColumns chart={chart} key={chart.title} />
               ))}
             </div>
           </div>

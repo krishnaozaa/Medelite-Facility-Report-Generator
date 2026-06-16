@@ -112,6 +112,67 @@ describe("GET /api/facility/[ccn]", () => {
     });
   });
 
+  it("keeps available bonus metrics when one comparison lookup fails", async () => {
+    const fetchMock = vi.fn((input: URL | RequestInfo) => {
+      const url = new URL(input.toString());
+
+      if (url.pathname.includes("/4pq5-n9py/")) {
+        return Promise.resolve({
+          ok: true,
+          json: vi.fn().mockResolvedValue({ results: [cmsRow] }),
+        });
+      }
+
+      if (url.pathname.includes("/ijh5-nb2v/")) {
+        return Promise.resolve({
+          ok: true,
+          json: vi.fn().mockResolvedValue({
+            results: [
+              {
+                measure_code: "521",
+                adjusted_score: "18.7",
+              },
+            ],
+          }),
+        });
+      }
+
+      if (url.searchParams.get("conditions[0][value]") === "FL") {
+        return Promise.resolve({
+          ok: false,
+          status: 503,
+        });
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          results: [
+            {
+              percentage_of_short_stay_residents_who_were_rehospitalized__1d02: "21.5",
+            },
+          ],
+        }),
+      });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await GET(
+      new Request("http://localhost/api/facility/686123"),
+      routeContext("686123"),
+    );
+    const json = await readJson(response);
+
+    expect(response.status).toBe(200);
+    expect(json).toMatchObject({
+      hospitalizationMetrics: {
+        strHospitalization: 18.7,
+        strHospitalizationNationalAvg: 21.5,
+        strHospitalizationStateAvg: null,
+      },
+    });
+  });
+
   it("trims CCN route params before lookup", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

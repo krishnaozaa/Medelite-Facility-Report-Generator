@@ -5,6 +5,7 @@ import { FormEvent, useMemo, useRef, useState } from "react";
 import type { FacilityProfile } from "@/types/facility";
 import { emptyManualInputs, type ManualInputs } from "@/types/manualInputs";
 import { buildFacilityAssessmentReport } from "@/lib/report/buildFacilityAssessmentReport";
+import { manualInputsSchema } from "@/lib/validation/manualInputs";
 
 import { DocxDownloadButton } from "./DocxDownloadButton";
 import { FacilitySummary } from "./FacilitySummary";
@@ -54,6 +55,10 @@ export function CcnLookupForm() {
   const inFlightLookupRef = useRef(false);
 
   const isLoading = status === "loading";
+  const areManualInputsValid = useMemo(
+    () => manualInputsSchema.safeParse(manualInputs).success,
+    [manualInputs],
+  );
   const report = useMemo(
     () => (facility ? buildFacilityAssessmentReport(facility, manualInputs) : null),
     [facility, manualInputs],
@@ -227,8 +232,8 @@ export function CcnLookupForm() {
               <h2 className="mt-2 text-xl font-semibold text-ink">Facility snapshot exports</h2>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <PdfDownloadButton report={report} />
-              <DocxDownloadButton report={report} />
+              <PdfDownloadButton isReady={areManualInputsValid} report={report} />
+              <DocxDownloadButton isReady={areManualInputsValid} report={report} />
             </div>
           </div>
           <FacilitySummary report={report} />
