@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
 import JSZip from "jszip";
 import { Packer } from "docx";
 import { describe, expect, it } from "vitest";
@@ -66,6 +68,10 @@ async function readDocxXml(report: FacilityAssessmentReport) {
   };
 }
 
+async function buildDocxZip(report: FacilityAssessmentReport, brandLogoData?: Uint8Array) {
+  return JSZip.loadAsync(await Packer.toBuffer(buildFacilityDocxDocument(report, brandLogoData)));
+}
+
 describe("buildFacilityDocx", () => {
   it("builds a DOCX from a complete canonical report object", async () => {
     const blob = await buildFacilityDocx(completeReport);
@@ -104,6 +110,18 @@ describe("buildFacilityDocx", () => {
 
     expect(documentXml).toContain("INFINITE — Managed by MEDELITE");
     expect(documentXml).toContain("INFINITE should not come from facility data");
+  });
+
+  it("can embed the same Medelite branding PNG used by PDF export", async () => {
+    const logoData = await readFile(resolve(process.cwd(), "public/branding-medelite.png"));
+    const zip = await buildDocxZip(completeReport, logoData);
+    const mediaFiles = Object.keys(zip.files).filter(
+      (fileName) => fileName.startsWith("word/media/") && fileName.endsWith(".png"),
+    );
+    const documentXml = await zip.file("word/document.xml")?.async("string");
+
+    expect(mediaFiles).toHaveLength(1);
+    expect(documentXml).toContain("INFINITE — Managed by MEDELITE");
   });
 
   it("exposes filename and readiness helpers for the download button", () => {

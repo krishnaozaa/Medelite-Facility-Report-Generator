@@ -3,6 +3,7 @@ import {
   BorderStyle,
   Document,
   ExternalHyperlink,
+  ImageRun,
   Packer,
   Paragraph,
   Table,
@@ -25,6 +26,26 @@ const TABLE_BORDER = {
   size: 6,
   color: "000000",
 };
+
+const BRAND_LOGO_PATH = "/branding-medelite.png";
+
+async function loadBrandLogoData() {
+  if (typeof fetch !== "function") {
+    return null;
+  }
+
+  try {
+    const response = await fetch(BRAND_LOGO_PATH);
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return response.arrayBuffer();
+  } catch {
+    return null;
+  }
+}
 
 function createTextParagraph(text: string, bold = false) {
   return new Paragraph({
@@ -96,8 +117,48 @@ export function isFacilityAssessmentReportDocxReady(report: FacilityAssessmentRe
   return isFacilityAssessmentReportExportReady(report);
 }
 
-export function buildFacilityDocxDocument(report: FacilityAssessmentReport) {
+export function buildFacilityDocxDocument(
+  report: FacilityAssessmentReport,
+  brandLogoData?: ArrayBuffer | Uint8Array | null,
+) {
   const rows = getFacilityAssessmentReportRows(report);
+  const brandHeader = brandLogoData
+    ? new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new ImageRun({
+            type: "png",
+            data: brandLogoData,
+            transformation: {
+              width: 226,
+              height: 52,
+            },
+            altText: {
+              name: report.branding.platform,
+              title: report.branding.platform,
+              description: "INFINITE logo with Managed by MEDELITE text.",
+            },
+          }),
+        ],
+        spacing: {
+          after: 80,
+        },
+      })
+    : new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            text: report.branding.platform,
+            bold: true,
+            color: "B000E8",
+            size: 28,
+            font: "Arial",
+          }),
+        ],
+        spacing: {
+          after: 120,
+        },
+      });
 
   return new Document({
     creator: report.branding.platform,
@@ -116,21 +177,7 @@ export function buildFacilityDocxDocument(report: FacilityAssessmentReport) {
           },
         },
         children: [
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            children: [
-              new TextRun({
-                text: report.branding.platform,
-                bold: true,
-                color: "B000E8",
-                size: 28,
-                font: "Arial",
-              }),
-            ],
-            spacing: {
-              after: 120,
-            },
-          }),
+          brandHeader,
           new Paragraph({
             alignment: AlignmentType.CENTER,
             children: [
@@ -200,5 +247,5 @@ export function buildFacilityDocxDocument(report: FacilityAssessmentReport) {
 }
 
 export async function buildFacilityDocx(report: FacilityAssessmentReport) {
-  return Packer.toBlob(buildFacilityDocxDocument(report));
+  return Packer.toBlob(buildFacilityDocxDocument(report, await loadBrandLogoData()));
 }

@@ -44,7 +44,8 @@ npm run build
 
 - [x] Hospitalization and ED metrics
 - [x] DOCX export
-- [ ] Cards and charts
+- [x] Responsive cards
+- [ ] Optional charts
 - [ ] Advanced CMS error handling and retry behavior
 
 ## Facility Lookup UI
@@ -94,6 +95,7 @@ The automated suite covers:
 - canonical report model assertions
 - PDF readiness, disabled/enabled behavior, filename generation, generation failure, and Medicare URL presence
 - DOCX readiness, disabled/enabled behavior, filename generation, generation failure, static branding, optional metric handling, and Medicare hyperlink presence
+- responsive facility, operations, rating, and hospitalization metric card rendering
 
 ## Manual Operational Inputs
 
@@ -207,7 +209,8 @@ DOCX export uses the `docx` package and renders from the same canonical `Facilit
 
 The generated Word document includes:
 
-- `INFINITE — Managed by MEDELITE`
+- Medelite/INFINITE logo image from `public/branding-medelite.png`
+- `INFINITE — Managed by MEDELITE` metadata/fallback branding
 - `FACILITY ASSESSMENT SNAPSHOT`
 - dynamic state
 - all MVP report rows
@@ -218,6 +221,17 @@ The generated Word document includes:
 Downloaded files use the format `facility-assessment-{ccn}.docx`, for example `facility-assessment-686123.docx`.
 
 Known DOCX limitation: Microsoft Word and Google Docs both open the generated document as an editable table document, but exact hyperlink color and table spacing can vary slightly after Google Docs import because Google reinterprets DOCX styling.
+
+## Bonus Responsive Cards
+
+The report preview uses responsive cards rendered from the canonical report model:
+
+- facility summary card with facility name, CCN, location, certified beds, and Medicare source link
+- manual operations card for EMR, Current Census, patient type, previous coverage, provider performance, and medical coverage
+- four star rating cards for Overall, Health Inspection, Staffing, and Quality of Resident Care
+- hospitalization/ED metric cards when optional bonus metrics are available
+
+No visualization library is currently installed. Charts remain optional and deferred because the current data is compact enough to present clearly as cards without adding client-side bundle weight. PDF and DOCX exports continue to use the canonical report rows and are not affected by the card presentation layer.
 
 ## Bonus Hospitalization And ED Metrics
 
@@ -400,7 +414,7 @@ Recommended Vercel settings:
 
 ## Bonus Roadmap
 
-- Add chart/card visualizations for ratings and future metric comparisons.
+- Add optional comparison charts for Facility vs State vs Nation metrics if the extra visual layer proves useful.
 - Add deploy-time monitoring and structured logging for CMS failures.
 
 ## Test CCN
