@@ -24,6 +24,20 @@ const facility = {
     staffing: 2,
     qualityOfResidentCare: 4,
   },
+  hospitalizationMetrics: {
+    strHospitalization: null,
+    strHospitalizationNationalAvg: null,
+    strHospitalizationStateAvg: null,
+    strEdVisit: null,
+    strEdVisitNationalAvg: null,
+    strEdVisitStateAvg: null,
+    ltHospitalization: null,
+    ltHospitalizationNationalAvg: null,
+    ltHospitalizationStateAvg: null,
+    ltEdVisit: null,
+    ltEdVisitNationalAvg: null,
+    ltEdVisitStateAvg: null,
+  },
   medicareUrl:
     "https://www.medicare.gov/care-compare/details/nursing-home/686123/view-all?state=FL",
 } satisfies FacilityProfile;

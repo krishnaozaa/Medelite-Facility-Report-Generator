@@ -40,6 +40,13 @@ npm run build
 - [x] Reference-aligned PDF branding and table layout
 - [x] Error, loading, and empty states for the full workflow
 
+## Bonus Checklist
+
+- [x] Hospitalization and ED metrics
+- [ ] DOCX export
+- [ ] Cards and charts
+- [ ] Advanced CMS error handling and retry behavior
+
 ## Facility Lookup UI
 
 The landing page includes a CCN lookup form backed by `GET /api/facility/[ccn]`.
@@ -51,6 +58,7 @@ The UI supports:
 - Clean no-result messaging for unknown CCNs
 - Retryable messaging for CMS/API failures
 - A normalized facility preview with facility name, CCN, location, certified beds, CMS average residents per day, ratings, and a Medicare source link
+- 12 hospitalization/ED metric rows when CMS claims and average data are available
 
 `averageResidentsPerDay` is displayed only as a CMS helper value. It is not treated as Current Census; Current Census will be entered manually in a later MVP step.
 
@@ -82,6 +90,7 @@ The automated suite covers:
 - missing CMS ratings, address fields, and certified beds
 - manual input validation
 - facility name override behavior
+- claims-based hospitalization/ED metric matching and formatting
 - canonical report model assertions
 - PDF readiness, disabled/enabled behavior, filename generation, generation failure, and Medicare URL presence
 
@@ -121,9 +130,10 @@ The builder accepts the normalized CMS `FacilityProfile` plus manual operational
 - operational fields
 - string-formatted ratings
 - string-formatted census capacity
+- string-formatted hospitalization and ED metrics
 - dynamic Medicare URL built from CCN and state
 
-Preview, PDF, and future DOCX exports should render from `FacilityAssessmentReport` instead of duplicating CMS/manual mapping logic in each surface. Missing text values render as `N/A`; missing numeric CMS values and ratings render as `—`.
+Preview, PDF, and future DOCX exports should render from `FacilityAssessmentReport` instead of duplicating CMS/manual mapping logic in each surface. Missing text values render as `N/A`; missing numeric CMS values and ratings render as `—`; missing hospitalization/ED metrics render as `N/A`.
 
 The branding fields are literal static values:
 
@@ -164,11 +174,21 @@ The MVP table includes:
 - Health Inspection
 - Staffing
 - Quality of Resident Care
+- Short Term Hospitalization
+- STR National Avg. for Hospitalization
+- STR State National Avg. for Hospitalization
+- STR ED Visit
+- STR ED Visits National Avg.
+- STR ED Visits State Avg.
+- LT Hospitalization
+- LT National Avg. for Hospitalization
+- LT State National Avg. for Hospitalization
+- ED Visit
+- LT ED Visits National Avg.
+- LT ED Visits State Avg.
 - clickable Medicare Care Compare hyperlink
 
 Downloaded files use the format `facility-assessment-{ccn}.pdf`, for example `facility-assessment-686123.pdf`.
-
-The PDF renderer can include the 12 hospitalization/ED rows when `hospitalizationMetrics` exists on the canonical report model. The MVP does not yet fetch Medicare Claims Quality Measures or State/US Averages, so those values are not fabricated or hardcoded.
 
 Manual QA checklist:
 
@@ -180,15 +200,46 @@ Manual QA checklist:
 - Confirm the PDF contains all MVP fields.
 - Confirm the Medicare Care Compare hyperlink is clickable.
 
+## Bonus Hospitalization And ED Metrics
+
+The app fetches 12 optional hospitalization/ED metrics server-side and merges them into the canonical report model. Bonus metric failures do not block MVP facility lookup; unavailable metrics render as `N/A`.
+
+Facility-level claims metrics come from Medicare Claims Quality Measures (`ijh5-nb2v`) for the matching CCN. The mapper prefers `Adjusted Score`, falls back to `Observed Score`, and treats rows with `Footnote for the Measure Score` as suppressed/missing.
+
+State and national comparisons come from State US Averages (`xcdc-v8bm`). State averages use the facility state row. National averages use the `NATION` row.
+
+Metric matching:
+
+| Report row | Source/matching |
+| --- | --- |
+| Short Term Hospitalization | Claims description includes short stay, rehospitalized, and nursing home admission |
+| STR National Avg. for Hospitalization | State US Averages national short-stay rehospitalization column |
+| STR State National Avg. for Hospitalization | State US Averages facility-state short-stay rehospitalization column |
+| STR ED Visit | Claims description includes short stay and outpatient emergency department visit |
+| STR ED Visits National Avg. | State US Averages national short-stay ED visit column |
+| STR ED Visits State Avg. | State US Averages facility-state short-stay ED visit column |
+| LT Hospitalization | Claims description includes hospitalizations per 1000 long-stay resident days |
+| LT National Avg. for Hospitalization | State US Averages national long-stay hospitalization column |
+| LT State National Avg. for Hospitalization | State US Averages facility-state long-stay hospitalization column |
+| ED Visit | Claims description includes outpatient emergency department visits per 1000 long-stay resident days |
+| LT ED Visits National Avg. | State US Averages national long-stay ED visit column |
+| LT ED Visits State Avg. | State US Averages facility-state long-stay ED visit column |
+
+Percent metrics render with `%`. Long-stay per-1000 metrics render as numeric values with up to two decimals.
+
+CMS refresh caveat: the provided Kendall Lakes sample values are fixture expectations from the reference materials. Live CMS data can differ after CMS refreshes; production always uses live CMS values and does not fake historical sample values.
+
 ## CMS Data Sources
 
-The MVP currently uses the CMS Provider Information dataset:
+The app currently uses these CMS datasets:
 
 | Dataset | ID | Purpose |
 | --- | --- | --- |
 | Provider Information | `4pq5-n9py` | Facility identity, address, certified beds, average residents per day, and star ratings |
+| Medicare Claims Quality Measures | `ijh5-nb2v` | Facility-level short-stay and long-stay hospitalization/ED metrics |
+| State US Averages | `xcdc-v8bm` | State and national average comparison metrics |
 
-CMS integration lives server-side under `src/lib/cms` and uses the Provider Data datastore endpoint `/provider-data/api/1/datastore/query/4pq5-n9py/0`. UI code should consume normalized internal types rather than CMS field names.
+CMS integration lives server-side under `src/lib/cms` and uses Provider Data datastore endpoints. UI code should consume normalized internal types rather than CMS field names.
 
 Successful CMS provider lookups use a short in-memory TTL cache of 5 minutes per server instance. Failed lookups, empty results, and invalid payloads are not cached.
 
@@ -227,6 +278,20 @@ type FacilityProfile = {
     healthInspection: number | null;
     staffing: number | null;
     qualityOfResidentCare: number | null;
+  };
+  hospitalizationMetrics: {
+    strHospitalization: number | null;
+    strHospitalizationNationalAvg: number | null;
+    strHospitalizationStateAvg: number | null;
+    strEdVisit: number | null;
+    strEdVisitNationalAvg: number | null;
+    strEdVisitStateAvg: number | null;
+    ltHospitalization: number | null;
+    ltHospitalizationNationalAvg: number | null;
+    ltHospitalizationStateAvg: number | null;
+    ltEdVisit: number | null;
+    ltEdVisitNationalAvg: number | null;
+    ltEdVisitStateAvg: number | null;
   };
   medicareUrl: string;
 };
@@ -304,30 +369,19 @@ Recommended Vercel settings:
 - `INFINITE — Managed by MEDELITE` is static brand text and is never replaced by facility names.
 - Facility name override affects only report body display.
 - Missing text fields render as `N/A`; missing numeric CMS values and ratings render as `—`.
+- Missing hospitalization/ED values render as `N/A`.
 - CMS provider lookup is server-side only.
 
 ## Known Limitations
 
 - DOCX export is not implemented.
-- Hospitalization and ED metrics are not implemented.
 - PDF visual QA should be completed in a normal browser because the Codex in-app browser does not support file downloads.
-- The uploaded branding PNG has not yet been integrated into the PDF or preview; current MVP uses the required static brand text.
 - The CMS cache is in-memory per server instance and may not persist across serverless cold starts.
 - `npm audit --audit-level=high` passes. A remaining moderate PostCSS advisory is nested under Next.js and npm currently suggests only a breaking `--force` path, so it is documented rather than force-applied.
 
-## Bonus Checklist
-
-- [ ] Hospitalization and ED metrics
-- [ ] DOCX export
-- [ ] Cards and charts
-- [ ] Advanced CMS error handling and retry behavior
-
 ## Bonus Roadmap
 
-- Add Medicare Claims Quality Measures and State US Averages datasets.
-- Add hospitalization and ED visit metrics to the canonical report model.
 - Add DOCX export from the canonical report model.
-- Integrate the uploaded Medelite/INFINITE branding PNG into preview and export layouts.
 - Add chart/card visualizations for ratings and future metric comparisons.
 - Add deploy-time monitoring and structured logging for CMS failures.
 

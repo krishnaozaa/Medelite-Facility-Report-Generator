@@ -1,6 +1,7 @@
 import type { FacilityProfile } from "@/types/facility";
 import { facilityProfileSchema } from "@/lib/validation/facilityProfile";
 
+import { emptyHospitalizationMetrics } from "./hospitalizationMetrics";
 import { buildMedicareCareCompareUrl } from "./medicareUrl";
 
 export type CmsProviderInformationRow = Record<string, unknown>;
@@ -97,6 +98,7 @@ export function mapCmsProviderRowToFacilityProfile(row: CmsProviderInformationRo
       staffing: readNullableNumber(row, fieldAliases.staffingRating),
       qualityOfResidentCare: readNullableNumber(row, fieldAliases.qmRating),
     },
+    hospitalizationMetrics: emptyHospitalizationMetrics,
     medicareUrl: buildMedicareCareCompareUrl(ccn, state),
   };
 

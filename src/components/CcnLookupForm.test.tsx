@@ -40,6 +40,20 @@ const facilityProfile = {
     staffing: 2,
     qualityOfResidentCare: 4,
   },
+  hospitalizationMetrics: {
+    strHospitalization: 18.7,
+    strHospitalizationNationalAvg: 21.5,
+    strHospitalizationStateAvg: 23.8,
+    strEdVisit: 13.9,
+    strEdVisitNationalAvg: 11.6,
+    strEdVisitStateAvg: 9.3,
+    ltHospitalization: 1.86,
+    ltHospitalizationNationalAvg: 1.65,
+    ltHospitalizationStateAvg: 1.95,
+    ltEdVisit: 6.94,
+    ltEdVisitNationalAvg: 1.65,
+    ltEdVisitStateAvg: 1.21,
+  },
   medicareUrl:
     "https://www.medicare.gov/care-compare/details/nursing-home/686123/view-all?state=FL",
 };
@@ -133,6 +147,8 @@ describe("CcnLookupForm", () => {
     expect(screen.getByText("Health inspection").nextSibling).toHaveTextContent("1");
     expect(screen.getByText("Staffing").nextSibling).toHaveTextContent("2");
     expect(screen.getByText("Quality of resident care").nextSibling).toHaveTextContent("4");
+    expect(screen.getByText("Short Term Hospitalization").nextSibling).toHaveTextContent("18.7%");
+    expect(screen.getByText("LT ED Visits State Avg.").nextSibling).toHaveTextContent("1.21");
 
     const sourceLink = screen.getByRole("link", { name: "Medicare source" });
     expect(sourceLink).toHaveAttribute("href", facilityProfile.medicareUrl);

@@ -18,5 +18,19 @@ export type FacilityProfile = {
     staffing: number | null;
     qualityOfResidentCare: number | null;
   };
+  hospitalizationMetrics: {
+    strHospitalization: number | null;
+    strHospitalizationNationalAvg: number | null;
+    strHospitalizationStateAvg: number | null;
+    strEdVisit: number | null;
+    strEdVisitNationalAvg: number | null;
+    strEdVisitStateAvg: number | null;
+    ltHospitalization: number | null;
+    ltHospitalizationNationalAvg: number | null;
+    ltHospitalizationStateAvg: number | null;
+    ltEdVisit: number | null;
+    ltEdVisitNationalAvg: number | null;
+    ltEdVisitStateAvg: number | null;
+  };
   medicareUrl: string;
 };

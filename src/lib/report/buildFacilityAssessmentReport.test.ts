@@ -29,6 +29,20 @@ const facility = {
     staffing: 2,
     qualityOfResidentCare: 4,
   },
+  hospitalizationMetrics: {
+    strHospitalization: 18.7,
+    strHospitalizationNationalAvg: 21.5,
+    strHospitalizationStateAvg: 23.8,
+    strEdVisit: 13.9,
+    strEdVisitNationalAvg: 11.6,
+    strEdVisitStateAvg: 9.3,
+    ltHospitalization: 1.86,
+    ltHospitalizationNationalAvg: 1.65,
+    ltHospitalizationStateAvg: 1.95,
+    ltEdVisit: 6.94,
+    ltEdVisitNationalAvg: 1.65,
+    ltEdVisitStateAvg: 1.21,
+  },
   medicareUrl:
     "https://www.medicare.gov/care-compare/details/nursing-home/686123/view-all?state=FL",
 } satisfies FacilityProfile;
@@ -73,6 +87,20 @@ describe("buildFacilityAssessmentReport", () => {
         staffing: "2",
         qualityOfResidentCare: "4",
       },
+      hospitalizationMetrics: {
+        strHospitalization: "18.7%",
+        strHospitalizationNationalAvg: "21.5%",
+        strHospitalizationStateAvg: "23.8%",
+        strEdVisit: "13.9%",
+        strEdVisitNationalAvg: "11.6%",
+        strEdVisitStateAvg: "9.3%",
+        ltHospitalization: "1.86",
+        ltHospitalizationNationalAvg: "1.65",
+        ltHospitalizationStateAvg: "1.95",
+        ltEdVisit: "6.94",
+        ltEdVisitNationalAvg: "1.65",
+        ltEdVisitStateAvg: "1.21",
+      },
     });
   });
 
@@ -91,6 +119,20 @@ describe("buildFacilityAssessmentReport", () => {
           healthInspection: null,
           staffing: null,
           qualityOfResidentCare: null,
+        },
+        hospitalizationMetrics: {
+          strHospitalization: null,
+          strHospitalizationNationalAvg: null,
+          strHospitalizationStateAvg: null,
+          strEdVisit: null,
+          strEdVisitNationalAvg: null,
+          strEdVisitStateAvg: null,
+          ltHospitalization: null,
+          ltHospitalizationNationalAvg: null,
+          ltHospitalizationStateAvg: null,
+          ltEdVisit: null,
+          ltEdVisitNationalAvg: null,
+          ltEdVisitStateAvg: null,
         },
       },
       {
@@ -123,6 +165,20 @@ describe("buildFacilityAssessmentReport", () => {
       healthInspection: "—",
       staffing: "—",
       qualityOfResidentCare: "—",
+    });
+    expect(report.hospitalizationMetrics).toEqual({
+      strHospitalization: "N/A",
+      strHospitalizationNationalAvg: "N/A",
+      strHospitalizationStateAvg: "N/A",
+      strEdVisit: "N/A",
+      strEdVisitNationalAvg: "N/A",
+      strEdVisitStateAvg: "N/A",
+      ltHospitalization: "N/A",
+      ltHospitalizationNationalAvg: "N/A",
+      ltHospitalizationStateAvg: "N/A",
+      ltEdVisit: "N/A",
+      ltEdVisitNationalAvg: "N/A",
+      ltEdVisitStateAvg: "N/A",
     });
   });
 

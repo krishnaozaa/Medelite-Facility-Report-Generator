@@ -4,7 +4,48 @@ type FacilitySummaryProps = {
   report: FacilityAssessmentReport;
 };
 
+function getHospitalizationRows(report: FacilityAssessmentReport) {
+  if (!report.hospitalizationMetrics) {
+    return [];
+  }
+
+  return [
+    { label: "Short Term Hospitalization", value: report.hospitalizationMetrics.strHospitalization },
+    {
+      label: "STR National Avg. for Hospitalization",
+      value: report.hospitalizationMetrics.strHospitalizationNationalAvg,
+    },
+    {
+      label: "STR State National Avg. for Hospitalization",
+      value: report.hospitalizationMetrics.strHospitalizationStateAvg,
+    },
+    { label: "STR ED Visit", value: report.hospitalizationMetrics.strEdVisit },
+    {
+      label: "STR ED Visits National Avg.",
+      value: report.hospitalizationMetrics.strEdVisitNationalAvg,
+    },
+    { label: "STR ED Visits State Avg.", value: report.hospitalizationMetrics.strEdVisitStateAvg },
+    { label: "LT Hospitalization", value: report.hospitalizationMetrics.ltHospitalization },
+    {
+      label: "LT National Avg. for Hospitalization",
+      value: report.hospitalizationMetrics.ltHospitalizationNationalAvg,
+    },
+    {
+      label: "LT State National Avg. for Hospitalization",
+      value: report.hospitalizationMetrics.ltHospitalizationStateAvg,
+    },
+    { label: "ED Visit", value: report.hospitalizationMetrics.ltEdVisit },
+    {
+      label: "LT ED Visits National Avg.",
+      value: report.hospitalizationMetrics.ltEdVisitNationalAvg,
+    },
+    { label: "LT ED Visits State Avg.", value: report.hospitalizationMetrics.ltEdVisitStateAvg },
+  ];
+}
+
 export function FacilitySummary({ report }: FacilitySummaryProps) {
+  const hospitalizationRows = getHospitalizationRows(report);
+
   return (
     <section
       aria-labelledby="facility-summary-title"
@@ -98,6 +139,22 @@ export function FacilitySummary({ report }: FacilitySummaryProps) {
           </dd>
         </div>
       </dl>
+
+      {hospitalizationRows.length > 0 ? (
+        <div className="mt-6 border-t border-slate-200 pt-5">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-medelite">
+            Hospitalization and ED metrics
+          </h3>
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {hospitalizationRows.map((row) => (
+              <div className="border border-slate-200 p-4" key={row.label}>
+                <dt className="text-sm font-medium text-slate-600">{row.label}</dt>
+                <dd className="mt-2 text-base font-semibold text-ink">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ) : null}
     </section>
   );
 }

@@ -28,6 +28,18 @@ function ratingOrPlaceholder(value: number | null | undefined) {
   return value === null || value === undefined ? MISSING_NUMERIC_PLACEHOLDER : String(value);
 }
 
+function percentOrPlaceholder(value: number | null | undefined) {
+  return value === null || value === undefined
+    ? EMPTY_PLACEHOLDER
+    : `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(value)}%`;
+}
+
+function metricNumberOrPlaceholder(value: number | null | undefined) {
+  return value === null || value === undefined
+    ? EMPTY_PLACEHOLDER
+    : new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
+}
+
 export function buildFacilityAssessmentReport(
   facility: FacilityProfile,
   manualInputs: ManualInputs,
@@ -64,6 +76,34 @@ export function buildFacilityAssessmentReport(
       healthInspection: ratingOrPlaceholder(facility.ratings.healthInspection),
       staffing: ratingOrPlaceholder(facility.ratings.staffing),
       qualityOfResidentCare: ratingOrPlaceholder(facility.ratings.qualityOfResidentCare),
+    },
+    hospitalizationMetrics: {
+      strHospitalization: percentOrPlaceholder(facility.hospitalizationMetrics.strHospitalization),
+      strHospitalizationNationalAvg: percentOrPlaceholder(
+        facility.hospitalizationMetrics.strHospitalizationNationalAvg,
+      ),
+      strHospitalizationStateAvg: percentOrPlaceholder(
+        facility.hospitalizationMetrics.strHospitalizationStateAvg,
+      ),
+      strEdVisit: percentOrPlaceholder(facility.hospitalizationMetrics.strEdVisit),
+      strEdVisitNationalAvg: percentOrPlaceholder(
+        facility.hospitalizationMetrics.strEdVisitNationalAvg,
+      ),
+      strEdVisitStateAvg: percentOrPlaceholder(facility.hospitalizationMetrics.strEdVisitStateAvg),
+      ltHospitalization: metricNumberOrPlaceholder(
+        facility.hospitalizationMetrics.ltHospitalization,
+      ),
+      ltHospitalizationNationalAvg: metricNumberOrPlaceholder(
+        facility.hospitalizationMetrics.ltHospitalizationNationalAvg,
+      ),
+      ltHospitalizationStateAvg: metricNumberOrPlaceholder(
+        facility.hospitalizationMetrics.ltHospitalizationStateAvg,
+      ),
+      ltEdVisit: metricNumberOrPlaceholder(facility.hospitalizationMetrics.ltEdVisit),
+      ltEdVisitNationalAvg: metricNumberOrPlaceholder(
+        facility.hospitalizationMetrics.ltEdVisitNationalAvg,
+      ),
+      ltEdVisitStateAvg: metricNumberOrPlaceholder(facility.hospitalizationMetrics.ltEdVisitStateAvg),
     },
   };
 }

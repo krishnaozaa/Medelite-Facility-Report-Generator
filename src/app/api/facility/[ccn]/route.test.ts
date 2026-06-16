@@ -66,6 +66,50 @@ describe("GET /api/facility/[ccn]", () => {
     expect(requestUrl.searchParams.get("conditions[0][value]")).toBe("686123");
     expect(requestUrl.searchParams.get("conditions[0][operator]")).toBe("=");
     expect(requestUrl.searchParams.get("size")).toBe("1");
+
+    const claimsUrl = fetchMock.mock.calls
+      .map((call) => new URL(call[0].toString()))
+      .find((url) => url.pathname === "/provider-data/api/1/datastore/query/ijh5-nb2v/0");
+    expect(claimsUrl).toBeDefined();
+    expect(claimsUrl?.searchParams.get("conditions[0][property]")).toBe(
+      "cms_certification_number_ccn",
+    );
+  });
+
+  it("keeps MVP facility lookup successful when bonus metric fetches fail", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: vi.fn().mockResolvedValue({ results: [cmsRow] }),
+      })
+      .mockRejectedValue(new Error("Bonus CMS unavailable"));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await GET(
+      new Request("http://localhost/api/facility/686123"),
+      routeContext("686123"),
+    );
+    const json = await readJson(response);
+
+    expect(response.status).toBe(200);
+    expect(json).toMatchObject({
+      ccn: "686123",
+      hospitalizationMetrics: {
+        strHospitalization: null,
+        strHospitalizationNationalAvg: null,
+        strHospitalizationStateAvg: null,
+        strEdVisit: null,
+        strEdVisitNationalAvg: null,
+        strEdVisitStateAvg: null,
+        ltHospitalization: null,
+        ltHospitalizationNationalAvg: null,
+        ltHospitalizationStateAvg: null,
+        ltEdVisit: null,
+        ltEdVisitNationalAvg: null,
+        ltEdVisitStateAvg: null,
+      },
+    });
   });
 
   it("trims CCN route params before lookup", async () => {

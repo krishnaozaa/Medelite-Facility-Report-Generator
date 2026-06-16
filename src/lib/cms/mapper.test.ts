@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { emptyHospitalizationMetrics } from "./hospitalizationMetrics";
 import { mapCmsProviderRowToFacilityProfile } from "./mapper";
 
 describe("mapCmsProviderRowToFacilityProfile", () => {
@@ -41,6 +42,7 @@ describe("mapCmsProviderRowToFacilityProfile", () => {
         staffing: 2,
         qualityOfResidentCare: 4,
       },
+      hospitalizationMetrics: emptyHospitalizationMetrics,
       medicareUrl:
         "https://www.medicare.gov/care-compare/details/nursing-home/686123/view-all?state=FL",
     });
