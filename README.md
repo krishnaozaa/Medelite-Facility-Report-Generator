@@ -43,7 +43,7 @@ npm run build
 ## Bonus Checklist
 
 - [x] Hospitalization and ED metrics
-- [ ] DOCX export
+- [x] DOCX export
 - [ ] Cards and charts
 - [ ] Advanced CMS error handling and retry behavior
 
@@ -93,6 +93,7 @@ The automated suite covers:
 - claims-based hospitalization/ED metric matching and formatting
 - canonical report model assertions
 - PDF readiness, disabled/enabled behavior, filename generation, generation failure, and Medicare URL presence
+- DOCX readiness, disabled/enabled behavior, filename generation, generation failure, static branding, optional metric handling, and Medicare hyperlink presence
 
 ## Manual Operational Inputs
 
@@ -133,7 +134,7 @@ The builder accepts the normalized CMS `FacilityProfile` plus manual operational
 - string-formatted hospitalization and ED metrics
 - dynamic Medicare URL built from CCN and state
 
-Preview, PDF, and future DOCX exports should render from `FacilityAssessmentReport` instead of duplicating CMS/manual mapping logic in each surface. Missing text values render as `N/A`; missing numeric CMS values and ratings render as `—`; missing hospitalization/ED metrics render as `N/A`.
+Preview, PDF, and DOCX exports render from `FacilityAssessmentReport` instead of duplicating CMS/manual mapping logic in each surface. Missing text values render as `N/A`; missing numeric CMS values and ratings render as `—`; missing hospitalization/ED metrics render as `N/A`.
 
 The branding fields are literal static values:
 
@@ -199,6 +200,24 @@ Manual QA checklist:
 - Confirm `INFINITE — Managed by MEDELITE` appears through the logo/metadata and is not replaced by the facility name.
 - Confirm the PDF contains all MVP fields.
 - Confirm the Medicare Care Compare hyperlink is clickable.
+
+## Bonus DOCX Export
+
+DOCX export uses the `docx` package and renders from the same canonical `FacilityAssessmentReport` model and shared report-row helper used by PDF export. The UI enables `Download DOCX` only after required report fields are present.
+
+The generated Word document includes:
+
+- `INFINITE — Managed by MEDELITE`
+- `FACILITY ASSESSMENT SNAPSHOT`
+- dynamic state
+- all MVP report rows
+- hospitalization/ED rows when available
+- editable two-column table layout
+- external Medicare Care Compare hyperlink
+
+Downloaded files use the format `facility-assessment-{ccn}.docx`, for example `facility-assessment-686123.docx`.
+
+Known DOCX limitation: Microsoft Word and Google Docs both open the generated document as an editable table document, but exact hyperlink color and table spacing can vary slightly after Google Docs import because Google reinterprets DOCX styling.
 
 ## Bonus Hospitalization And ED Metrics
 
@@ -374,14 +393,13 @@ Recommended Vercel settings:
 
 ## Known Limitations
 
-- DOCX export is not implemented.
 - PDF visual QA should be completed in a normal browser because the Codex in-app browser does not support file downloads.
+- DOCX visual QA should be completed in Microsoft Word or Google Docs after download; automated tests inspect the generated DOCX XML and hyperlink relationship.
 - The CMS cache is in-memory per server instance and may not persist across serverless cold starts.
 - `npm audit --audit-level=high` passes. A remaining moderate PostCSS advisory is nested under Next.js and npm currently suggests only a breaking `--force` path, so it is documented rather than force-applied.
 
 ## Bonus Roadmap
 
-- Add DOCX export from the canonical report model.
 - Add chart/card visualizations for ratings and future metric comparisons.
 - Add deploy-time monitoring and structured logging for CMS failures.
 

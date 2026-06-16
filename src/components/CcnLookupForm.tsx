@@ -6,6 +6,7 @@ import type { FacilityProfile } from "@/types/facility";
 import { emptyManualInputs, type ManualInputs } from "@/types/manualInputs";
 import { buildFacilityAssessmentReport } from "@/lib/report/buildFacilityAssessmentReport";
 
+import { DocxDownloadButton } from "./DocxDownloadButton";
 import { FacilitySummary } from "./FacilitySummary";
 import { ManualInputsForm } from "./ManualInputsForm";
 import { PdfDownloadButton } from "./PdfDownloadButton";
@@ -211,9 +212,12 @@ export function CcnLookupForm() {
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-medelite">
                 Export
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-ink">MVP PDF snapshot</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-ink">Facility snapshot exports</h2>
             </div>
-            <PdfDownloadButton report={report} />
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <PdfDownloadButton report={report} />
+              <DocxDownloadButton report={report} />
+            </div>
           </div>
           <FacilitySummary report={report} />
         </>
