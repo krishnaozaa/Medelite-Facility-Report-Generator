@@ -33,18 +33,6 @@ npm run test
 npm run build
 ```
 
-## MVP Checklist
-
-- [x] Project foundation and App Router shell
-- [x] Server-side CMS provider lookup by CCN
-- [x] Normalized CMS facility type and mapper
-- [x] CCN lookup UI and facility preview
-- [x] Manual operational input form
-- [x] Facility assessment snapshot preview
-- [x] PDF export with `@react-pdf/renderer`
-- [x] Reference-aligned PDF branding and table layout
-- [x] Error, loading, and empty states for the full workflow
-
 ## Features Implemented
 
 - CCN lookup through `GET /api/facility/[ccn]`
@@ -56,14 +44,6 @@ npm run build
 - Responsive web preview
 - PDF export
 - Error, loading, not-found, timeout, and retry states
-
-## Bonus Checklist
-
-- [x] Hospitalization and ED metrics
-- [x] DOCX export
-- [x] Responsive cards
-- [x] SVG 3D comparison charts
-- [x] Advanced CMS error handling and retry behavior
 
 ## Bonus Features Implemented
 
@@ -123,9 +103,9 @@ The automated suite covers:
 - DOCX readiness, disabled/enabled behavior, filename generation, generation failure, static branding, optional metric handling, and Medicare hyperlink presence
 - responsive facility, operations, rating, hospitalization metric card, and SVG 3D comparison chart rendering
 - invalid manual values keeping export buttons disabled
-- partial bonus CMS metric failures preserving any available claims or benchmark data
+- partial CMS metric failures preserving any available claims or benchmark data
 
-## Final QA Checklist
+## QA Tests Passed
 
 - [x] Empty CCN shows validation and does not call the API.
 - [x] Invalid CCN shows validation and does not call the API.
@@ -138,7 +118,7 @@ The automated suite covers:
 - [x] PDF includes a clickable Medicare Care Compare link.
 - [x] DOCX download is enabled only when required data is valid.
 - [x] DOCX includes editable report rows and Medicare hyperlink relationship.
-- [x] Bonus hospitalization/ED metrics render when CMS data is available.
+- [x] Hospitalization/ED metrics render when CMS data is available.
 - [x] Static brand header remains `INFINITE — Managed by MEDELITE`.
 - [x] Mobile layout uses responsive grids and avoids horizontal overflow.
 - [x] Production build passes.
@@ -194,11 +174,11 @@ branding: {
 }
 ```
 
-## MVP PDF Export
+## PDF Export
 
-PDF export uses `@react-pdf/renderer` and renders from the canonical `FacilityAssessmentReport` model. The UI enables `Download PDF` only after required MVP report fields are present, including manual operational inputs.
+PDF export uses `@react-pdf/renderer` and renders from the canonical `FacilityAssessmentReport` model. The UI enables `Download PDF` only after required report fields are present, including manual operational inputs.
 
-The MVP PDF follows the provided Facility Assessment Snapshot reference structure:
+The PDF follows the provided Facility Assessment Snapshot reference structure:
 
 - Medelite/INFINITE logo image from `public/branding-medelite.png`
 - centered `FACILITY ASSESSMENT SNAPSHOT` heading
@@ -206,7 +186,7 @@ The MVP PDF follows the provided Facility Assessment Snapshot reference structur
 - one bordered two-column table with bold labels and report values
 - clickable Medicare Care Compare source hyperlink
 
-The MVP table includes:
+The table includes:
 
 - `INFINITE — Managed by MEDELITE`
 - `FACILITY ASSESSMENT SNAPSHOT`
@@ -250,7 +230,7 @@ Manual QA checklist:
 - Confirm the PDF contains all MVP fields.
 - Confirm the Medicare Care Compare hyperlink is clickable.
 
-## Bonus DOCX Export
+## DOCX Export
 
 DOCX export uses the `docx` package and renders from the same canonical `FacilityAssessmentReport` model and shared report-row helper used by PDF export. The UI enables `Download DOCX` only after required report fields are present.
 
@@ -269,7 +249,7 @@ Downloaded files use the format `facility-assessment-{ccn}.docx`, for example `f
 
 Known DOCX limitation: Microsoft Word and Google Docs both open the generated document as an editable table document, but exact hyperlink color and table spacing can vary slightly after Google Docs import because Google reinterprets DOCX styling.
 
-## Bonus Responsive Cards And Charts
+## Responsive Cards And Charts
 
 The report preview uses responsive cards rendered from the canonical report model:
 
@@ -281,9 +261,9 @@ The report preview uses responsive cards rendered from the canonical report mode
 
 No visualization library is installed. The charts are custom SVG components to avoid adding charting-library bundle weight for four static benchmark comparisons. PDF and DOCX exports continue to use the canonical report rows and are not affected by the card/chart presentation layer.
 
-## Bonus Hospitalization And ED Metrics
+## Hospitalization And ED Metrics
 
-The app fetches 12 optional hospitalization/ED metrics server-side and merges them into the canonical report model. Bonus metric failures do not block MVP facility lookup; unavailable metrics render as `N/A`.
+The app fetches 12 optional hospitalization/ED metrics server-side and merges them into the canonical report model. Optional metric failures do not block facility lookup; unavailable metrics render as `N/A`.
 
 Facility-level claims metrics come from Medicare Claims Quality Measures (`ijh5-nb2v`) for the matching CCN. The mapper prefers `Adjusted Score`, falls back to `Observed Score`, and treats rows with `Footnote for the Measure Score` as suppressed/missing.
 
@@ -446,7 +426,7 @@ Current production deployment:
 
 - `https://medelite-facility-assessment.vercel.app`
 
-## MVP Assumptions
+## Assumptions
 
 - CCNs are always preserved as strings because leading zeros are valid.
 - Current Census is always a manual input.
@@ -456,6 +436,7 @@ Current production deployment:
 - Missing text fields render as `N/A`; missing numeric CMS values and ratings render as `—`.
 - Missing hospitalization/ED values render as `N/A`.
 - CMS provider lookup is server-side only.
+- Visual branding uses the downloaded INFINITE/Medelite banner image from `public/branding-medelite.png` instead of rendering only typed text for `INFINITE — Managed by MEDELITE`, because the banner better matches production-grade brand presentation while the static brand text remains preserved in alt text, metadata, and fallback copy.
 
 ## Known Limitations
 
@@ -463,11 +444,7 @@ Current production deployment:
 - The CMS cache is in-memory per server instance and may not persist across serverless cold starts.
 - `npm audit --audit-level=high` passes. A remaining moderate PostCSS advisory is nested under Next.js and npm currently suggests only a breaking `--force` path, so it is documented rather than force-applied.
 
-## Screenshots
-
-No static application screenshots are committed in this repository. The live deployment can be used to capture the final lookup, preview, 3D chart, PDF, and DOCX states for the submission packet.
-
-## Bonus Roadmap
+## Roadmap
 
 - Add deploy-time monitoring and structured logging for CMS failures.
 
@@ -482,7 +459,3 @@ The app and generated reports must always use the static brand text:
 `INFINITE — Managed by MEDELITE`
 
 Never replace `INFINITE` with the facility name, CMS provider name, legal business name, or manual override. Facility names belong only in report body fields such as `Name of Facility`.
-
-## Final Branding Assumption
-
-Visual branding uses the downloaded INFINITE/Medelite banner image from `public/branding-medelite.png` instead of rendering only typed text for `INFINITE — Managed by MEDELITE`, because the banner better matches production-grade brand presentation while the static brand text remains preserved in alt text, metadata, and fallback copy.
